@@ -364,7 +364,7 @@ tr.pend td{background:#FFF8E1}
       <label class="f" style="flex-direction:row;align-items:center;gap:8px">Corte<select id="rProduto" style="width:auto"></select></label>
       <label class="f" style="flex-direction:row;align-items:center;gap:8px">Fotos<select id="rFotos" style="width:auto"><option value="card">Nos cards</option><option value="fim">Ao final do relatório</option></select></label>
       <label class="f" style="flex-direction:row;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="rNk" style="width:20px;height:20px;min-height:0"> Mostrar nocaute</label>
-      <button class="btn" type="button" data-zipall="1">⬇ Todas as fotos (zip)</button>
+      <a class="btn" id="drvAll" href="#" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center" aria-disabled="true">Abrir todas as fotos no Drive</a>
       <button class="btn" id="btnPrint" type="button">Imprimir / PDF</button></div>
     <div class="printhead"><b>PMM 360° · Chile — Relatório das avaliações</b><span id="printInfo"></span></div><div class="pendAlert noprint" style="margin-top:12px"></div><div id="relatorio" style="margin-top:14px"></div>
   </section>
@@ -423,7 +423,7 @@ let senha=null, canEdit=false, rows=[], editingId=null, ncs={};
 function route(){const v=(location.hash||'#lancar').slice(1);const ok=['lancar','dashboard','lancamentos','relatorio'].includes(v)?v:'lancar';
  document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+ok));
  document.querySelectorAll('nav.tabs a').forEach(a=>a.setAttribute('aria-current',a.dataset.v===ok?'page':'false'));}
-addEventListener('hashchange',route);
+addEventListener('hashchange',()=>{route(); if(location.hash==='#relatorio') loadPastas(true);});
 
 // ---------- formulário ----------
 const fP=$('#fProduto'), fF=$('#fFrig');
@@ -665,7 +665,7 @@ function renderReport(){const rows=allRows(); const sel=$('#rProduto').value; co
   const pj=agg(PL.filter(r=>r.grupo==='JBS')), pc=agg(PL.filter(r=>r.grupo!=='JBS'));
   const G={}; PL.forEach(r=>{const k=(r.frigorifico||'').trim().toLowerCase()+'|'+(r.sif||''); (G[k]=G[k]||[]).push(r);});
   const cards=Object.values(G).map(rs=>({rs,...agg(rs),jbs:rs[0].grupo==='JBS',frig:rs[0].frigorifico,sif:rs[0].sif})).sort((x,y)=>x.i-y.i);
-  h+=`<section class="rsec"><div class="top"><div><h3>${esc(p.nome)}</h3><button class="btn noprint" type="button" data-zipcut="${p.id}" style="min-height:32px;padding:4px 10px;font-size:13px;margin-top:6px">⬇ Fotos do corte (zip)</button><span style="font-size:13px;color:var(--muted)">Família produto: ${esc(p.fam)} · ${PL.length} avaliações · ${agg(PL).p} peças</span></div>
+  h+=`<section class="rsec"><div class="top"><div><h3>${esc(p.nome)}</h3>${drvLink(drvCorte(p.nome),'Fotos do corte no Drive','margin-top:6px')}<span style="font-size:13px;color:var(--muted)">Família produto: ${esc(p.fam)} · ${PL.length} avaliações · ${agg(PL).p} peças</span></div>
    <div class="vs"><div class="j"><b>${pct(pj.i)}</b><span>JBS · ${pj.n}/${pj.p} pç</span></div><div class="c"><b>${pct(pc.i)}</b><span>Concorrentes · ${pc.n}/${pc.p} pç</span></div></div></div><div class="rbody">`;
   const mx=Math.max(...cards.map(x=>x.i),0.0001);
   h+=`<div><h3 style="font-size:15px">Ranking por frigorífico/SIF <small style="font-weight:400;color:var(--muted)">· menor índice = melhor</small></h3><div class="bars">${cards.map((x,k)=>`<div class="bar"><span>${flogo(x.frig,18)}${k+1}º ${esc(x.frig)} ${esc(x.sif)}</span><span class="tr"><i style="width:${Math.max(2,x.i/mx*100)}%;background:${x.jbs?'var(--bar-jbs)':'var(--bar-con)'}"></i></span><span class="v">${pct(x.i)} <small>${x.n}/${x.p}</small></span></div>`).join('')}</div></div>`;
@@ -682,7 +682,7 @@ function renderReport(){const rows=allRows(); const sel=$('#rProduto').value; co
     <div class="fc-sub">Principais NCs <span>NCs · % das peças</span></div>
     <div class="tl">${top.length?top.map(([kk,v])=>`<div><span>${esc(kk.split('|')[1])}<small>${esc(kk.split('|')[0])}</small></span><b>${v}</b><em>${pct(v/x.p)}</em></div>`).join(''):'<span style="color:var(--green-ink);font-weight:600">Nenhuma NC apontada</span>'}</div>
     ${x.rs.some(r=>r.obs)?`<div class="obsb"><b>Observações</b>${x.rs.filter(r=>r.obs).map(r=>`<p><span>Produção ${fmtD(r.dataProducao)}:</span> ${esc(r.obs).replace(/\n/g,'<br>')}</p>`).join('')}</div>`:''}
-    ${fim?(fotos.length?`<div class="nofoto">📷 ${fotos.length} foto${fotos.length>1?'s':''} no final do relatório</div>`:'<div class="nofoto">Sem fotos neste frigorífico/SIF</div>'):fotos.length?`<div class="gal">${fotos.map((f,i)=>`<button type="button" data-g="${gk}" data-i="${i}" aria-label="Ampliar foto ${i+1}"><img src="${fotoUrl(f.id)}" alt="${esc(f.cap)}" loading="lazy"></button>`).join('')}</div>`:'<div class="nofoto">Sem fotos neste frigorífico/SIF</div>'}${fotos.length?`<button class="btn noprint" type="button" data-zip="${gk}" style="min-height:34px;padding:6px 10px;font-size:13px">⬇ Baixar ${fotos.length} foto${fotos.length>1?'s':''} (zip)</button>`:''}</article>`;}).join('')+'</div></div></section>';}
+    ${fim?(fotos.length?`<div class="nofoto">📷 ${fotos.length} foto${fotos.length>1?'s':''} no final do relatório</div>`:'<div class="nofoto">Sem fotos neste frigorífico/SIF</div>'):fotos.length?`<div class="gal">${fotos.map((f,i)=>`<button type="button" data-g="${gk}" data-i="${i}" aria-label="Ampliar foto ${i+1}"><img src="${fotoUrl(f.id)}" alt="${esc(f.cap)}" loading="lazy"></button>`).join('')}</div>`:'<div class="nofoto">Sem fotos neste frigorífico/SIF</div>'}${fotos.length?drvLink(drvSif(p.nome,x.frig,x.sif),`Ver ${fotos.length} foto${fotos.length>1?'s':''} no Drive`,''):''}</article>`;}).join('')+'</div></div></section>';}
  if(fim&&APX.length){ h+=`<section class="rsec apx"><div class="top"><div><h3>Fotos das avaliações</h3><span style="font-size:13px;color:var(--muted)">por corte e frigorífico/SIF</span></div></div><div class="rbody">`;
   let last=''; APX.forEach(a=>{ if(a.p!==last){h+=`<h3 style="font-size:18px;margin:6px 0 0">${esc(a.p)}</h3>`; last=a.p;}
    h+=`<div class="apxg"><div class="row" style="gap:8px">${flogo(a.x.frig,24)}<b style="color:var(--navy)">${esc(a.x.frig)} · SIF ${esc(a.x.sif)}</b><span class="pill ${a.x.jbs?'jbs':''}">${a.x.jbs?'JBS':'Concorrente'}</span><span style="font-size:12px;color:var(--muted)">${a.fotos.length} foto${a.fotos.length>1?'s':''}</span></div><div class="gal big">${a.fotos.map((f,i)=>`<figure><button type="button" data-g="${a.gk}" data-i="${i}" aria-label="Ampliar foto ${i+1}"><img src="${fotoUrl(f.id)}" alt="${esc(f.cap)}" loading="lazy"></button></figure>`).join('')}</div></div>`;});
@@ -691,7 +691,13 @@ function renderReport(){const rows=allRows(); const sel=$('#rProduto').value; co
 $('#relatorio').addEventListener('click',e=>{const b=e.target.closest('[data-g]'); if(b) openLb(GAL[b.dataset.g],+b.dataset.i);
  const z=e.target.closest('[data-zip]'); if(z){const f=GAL[z.dataset.zip]||[]; if(f.length) zipDown(z,f,`PMM Chile - ${f[0].prod} - ${f[0].frig} SIF ${f[0].sif}`,0);}
  const c=e.target.closest('[data-zipcut]'); if(c){const pid=c.dataset.zipcut; const f=Object.entries(GAL).filter(([k])=>k.startsWith(pid+'_')).flatMap(([,v])=>v); if(!f.length){c.textContent='Sem fotos neste corte'; return;} zipDown(c,f,`PMM Chile - ${f[0].prod}`,1);} });
-document.querySelector('[data-zipall]').addEventListener('click',e=>{const f=Object.values(GAL).flat(); if(!f.length){e.currentTarget.textContent='Sem fotos'; return;} zipDown(e.currentTarget,f,'PMM Chile - fotos',2);});
+let PASTAS=null, pastasT=0;
+const nrm=t=>String(t||'').trim().toLowerCase().replace(/\s+/g,' ');
+function drvCorte(nome){ if(!PASTAS) return null; const k=Object.keys(PASTAS.cortes||{}).find(c=>nrm(c)===nrm(nome)); return k?PASTAS.cortes[k]:null; }
+function drvSif(prod,frig,sif){ const c=drvCorte(prod); if(!c) return null; const alvo=nrm(`${frig} SIF ${sif}`); const k=Object.keys(c.sub||{}).find(n=>nrm(n)===alvo); return k?{url:c.sub[k]}:null; }
+function drvLink(d,txt,extra){ return d&&d.url?`<a class="btn noprint" href="${esc(d.url)}" target="_blank" rel="noopener" style="min-height:32px;padding:5px 10px;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;${extra}">${esc(txt)}</a>`:(PASTAS?'':`<span class="noprint" style="font-size:12px;color:var(--muted)">carregando pasta…</span>`); }
+async function loadPastas(force){ if(!canEdit&&LEITURA_EXIGE_SENHA) return; if(!force&&PASTAS&&Date.now()-pastasT<60000) return; try{PASTAS=await api('pastas'); pastasT=Date.now(); const a=$('#drvAll'); a.href=PASTAS.url; a.removeAttribute('aria-disabled'); renderReport();}catch(e){ if(e.code==='acao_desconhecida'){PASTAS={cortes:{}}; $('#drvAll').textContent='Atualize o Apps Script';} } }
+$('#drvAll').addEventListener('click',e=>{ if($('#drvAll').getAttribute('aria-disabled')){e.preventDefault(); loadPastas(true);} });
 function showZip(url,nome,n){let t=$('#zipToast'); if(!t){t=document.createElement('div'); t.id='zipToast'; t.className='noprint'; t.setAttribute('role','status'); document.body.appendChild(t);}
  t.innerHTML=`<span>✅ <b>${esc(nome)}</b> · ${n} foto${n>1?'s':''}</span><a class="btn pri" href="${esc(url)}" target="_blank" rel="noopener">Baixar zip</a><button type="button" class="btn" aria-label="Fechar">×</button>`;
  t.querySelector('button').onclick=()=>t.remove(); t.querySelector('a').focus();}
@@ -702,7 +708,7 @@ async function zipDown(btn,fotos,nome,nivel){ if(!canEdit){openLogin(); return;}
  try{ const r=await api('zip',{itens,nome:safe(nome)}); btn.disabled=false; btn.textContent=txt; showZip(r.url,nome,itens.length); }
  catch(err){ btn.disabled=false; btn.textContent=txt; alert(err.code==='acao_desconhecida'?'O Apps Script ainda não tem a função de zip. Atualize o código do script e implante uma nova versão.':'Não foi possível gerar o zip ('+(err.code||err.message)+'). Se forem muitas fotos, tente por corte ou por frigorífico/SIF.'); } }
 function allRows(){return [...rows.filter(r=>!FILA.some(q=>q.editingId===r.id)),...FILA.map(q=>({...q.doc,id:q.editingId||('fila-'+q.qid),_fila:true,fotos:q.doc.fotos||[]}))];}
-function renderAll(){renderDash(); renderTable(); renderPend(); fillLists(); renderReport();}
+function renderAll(){ if(location.hash==='#relatorio') loadPastas();renderDash(); renderTable(); renderPend(); fillLists(); renderReport();}
 
 // ---------- conexão ----------
 function setStatus(cls,t){$('#dot').className='dot '+cls; $('#statusTxt').textContent=t;}
