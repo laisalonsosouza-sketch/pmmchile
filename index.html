@@ -99,6 +99,10 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .legend{display:flex;gap:14px;font-size:12px;color:var(--muted);flex-wrap:wrap}
 .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:5px}
 .empty{color:var(--muted);font-size:14px;padding:10px 0}
+#zipToast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 16px);z-index:60;display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:10px 12px;box-shadow:0 10px 30px rgba(0,0,0,.18);max-width:94vw;font-size:14px}
+#zipToast a{text-decoration:none;display:inline-flex;align-items:center}
+.ov .rbody{gap:16px}.ovb h4{margin:0 0 2px;font-size:15px;color:var(--navy)}.ovn{margin:0 0 8px;font-size:12px;color:var(--muted)}
+.ovg{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
 .flogo{display:inline-block;vertical-align:middle;width:auto;max-width:110px;object-fit:contain;background:#fff;border-radius:6px;padding:2px 4px;margin-right:6px}
 .nk{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
 .nk.rep{background:var(--red-soft);color:var(--red)}.nk.ok{background:var(--green-soft);color:var(--green-ink)}
@@ -156,7 +160,7 @@ tr.pend td{background:#FFF8E1}
 .obsb{background:var(--soft);border-radius:10px;padding:10px 12px;font-size:13px}.obsb b{display:block;color:var(--navy);margin-bottom:4px}.obsb p{margin:4px 0}.obsb span{font-weight:600;color:var(--muted)}
 .apxg{display:flex;flex-direction:column;gap:8px;break-inside:avoid;padding-top:6px;border-top:1px solid var(--line)}
 .gal.big{grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}.gal.big figure{margin:0}.gal.big button{width:100%}.gal.big figcaption{font-size:11px;color:var(--muted);margin-top:3px}
-@media print{.apx{break-before:page}.gal.big{grid-template-columns:repeat(3,1fr)}}
+
 .gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:6px}
 .gal button{padding:0;border:none;aspect-ratio:1;border-radius:8px;overflow:hidden;cursor:pointer;background:var(--soft)}
 .gal img{width:100%;height:100%;object-fit:cover;display:block}
@@ -167,7 +171,43 @@ tr.pend td{background:#FFF8E1}
 .lbx{position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);right:16px;width:44px;height:44px;border-radius:50%;border:none;background:#fff2;color:#fff;font-size:26px;cursor:pointer}
 .lbn{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:64px;border:none;background:#fff2;color:#fff;font-size:34px;cursor:pointer;border-radius:10px}
 #lbPrev{left:12px}#lbNext{right:12px}
-@media print{.hero,header.top,.noprint,#globalMsg{display:none!important}body{background:#fff}main{padding:0}.rsec{break-inside:auto}.fc{break-inside:avoid}}
+@page{size:A4 portrait;margin:12mm 10mm}
+.printhead{display:none}
+@media print{
+ *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ :root{color-scheme:light}
+ html,body{background:#fff!important;color:#1A1840;font-size:11px}
+ body::before{display:none}
+ .hero,header.top,.noprint,#globalMsg,.pendAlert,.lb,#loginBox,.view:not(#v-relatorio){display:none!important}
+ #v-relatorio{display:block!important}
+ main{max-width:none;padding:0;margin:0}
+ .printhead{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #1C1462;padding-bottom:6px;margin-bottom:10px}
+ .printhead b{font-size:18px;color:#1C1462}.printhead span{font-size:10px;color:#5E5C7A}
+ .rhead{grid-template-columns:repeat(3,1fr);padding:12px;gap:8px;border-radius:10px;break-inside:avoid}
+ .rhead .k b{font-size:20px}.rhead .k span{font-size:10px}
+ .rsec{overflow:visible;margin-top:12px;border-radius:10px;break-inside:auto}
+ .rsec>.top{padding:10px 12px;break-after:avoid}.rsec>.top h3{font-size:16px}
+ .vs div{min-width:100px;padding:6px 10px}.vs b{font-size:16px}
+ .rbody{padding:10px 12px;gap:10px}
+ .bar{grid-template-columns:150px 1fr 90px;font-size:10px;break-inside:avoid}.bar .tr{height:14px}.bar .v{min-width:0}
+ .fcards{grid-template-columns:1fr 1fr;gap:10px}
+ .fc{padding:10px;gap:7px;border-radius:10px;break-inside:avoid;page-break-inside:avoid;box-shadow:none}
+ .fc-id{grid-template-columns:52px 1fr auto;gap:8px}.fc-logo{width:52px}.fc-logo .flogo{max-width:52px;height:auto!important;max-height:30px}
+ .fc-name b{font-size:13px}.fc-name span{font-size:11px}.fc-name small{font-size:9.5px}
+ .fc-idx b{font-size:20px}.fc-idx small{font-size:9px}
+ .fc-nk{padding:6px 8px;font-size:10px}.fc-nk-h span{font-size:8.5px}.fc-nk-h b{font-size:11px}
+ .fc-sub{font-size:9px}
+ .fc .tl{font-size:10.5px}.fc .tl div{grid-template-columns:1fr 26px 36px;padding:3px 0}.fc .tl b{font-size:12px}.fc .tl em{font-size:9px}.fc .tl span small{font-size:8.5px}
+ .obsb{font-size:10px;padding:6px 8px}
+ .gal{grid-template-columns:repeat(4,1fr);gap:4px}.gal button{aspect-ratio:4/3}
+ .nofoto{font-size:9.5px;padding:5px}
+ .pill,.nk,.warn{font-size:9px;padding:1px 6px}
+ .apx{break-before:page}.apxg{break-inside:avoid}.gal.big{grid-template-columns:repeat(3,1fr);gap:6px}.gal.big button{aspect-ratio:4/3}
+ img{max-width:100%}
+ .ov{break-after:page}.ovb{break-inside:avoid}.ovg{grid-template-columns:1fr 1fr;gap:10px}.ovb h4{font-size:12px}.ovn{font-size:9px;margin-bottom:4px}
+ .covrow{grid-template-columns:110px repeat(auto-fit,minmax(80px,1fr));gap:4px}.cell{font-size:9px;padding:4px}.cell b{font-size:10px}.cell .flogo{height:14px!important}
+ .heat{font-size:8.5px}.heat th,.heat td{padding:3px 4px}.heat td.c{min-width:0}.heat td.t{min-width:0}.heat th.s{min-width:0;font-size:8px}.heat .flogo{height:12px!important}.tw{overflow:visible}
+}
 .mini{display:flex;gap:4px}.mini a{display:block;width:34px;height:34px;border-radius:6px;overflow:hidden;background:var(--soft)}.mini img{width:100%;height:100%;object-fit:cover}
 @media (max-width:640px){.bar{grid-template-columns:110px 1fr auto}.kpi b{font-size:24px}}
 </style>
@@ -259,8 +299,10 @@ tr.pend td{background:#FFF8E1}
     <div class="row noprint"><h2 id="h-rel" style="margin:0">Relatório das avaliações</h2><span class="spacer"></span>
       <label class="f" style="flex-direction:row;align-items:center;gap:8px">Corte<select id="rProduto" style="width:auto"></select></label>
       <label class="f" style="flex-direction:row;align-items:center;gap:8px">Fotos<select id="rFotos" style="width:auto"><option value="card">Nos cards</option><option value="fim">Ao final do relatório</option></select></label>
+      <label class="f" style="flex-direction:row;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="rNk" style="width:20px;height:20px;min-height:0"> Mostrar nocaute</label>
+      <button class="btn" type="button" data-zipall="1">⬇ Todas as fotos (zip)</button>
       <button class="btn" id="btnPrint" type="button">Imprimir / PDF</button></div>
-    <div class="pendAlert noprint" style="margin-top:12px"></div><div id="relatorio" style="margin-top:14px"></div>
+    <div class="printhead"><b>PMM 360° · Chile — Relatório das avaliações</b><span id="printInfo"></span></div><div class="pendAlert noprint" style="margin-top:12px"></div><div id="relatorio" style="margin-top:14px"></div>
   </section>
   <div id="loginBox" class="lb" hidden role="dialog" aria-modal="true" aria-labelledby="loginTit"><form id="loginForm" class="card" style="max-width:360px;width:100%;display:flex;flex-direction:column;gap:12px">
     <h3 id="loginTit" style="margin:0">Acesso da equipe</h3><p style="margin:0;font-size:14px;color:var(--muted)">Digite a senha do PMM Chile para lançar e editar.</p>
@@ -502,8 +544,13 @@ $('#pendBox').addEventListener('click',e=>{const ed=e.target.closest('[data-ed]'
 $('#tbLanc').addEventListener('click',e=>{const ed=e.target.closest('[data-ed]'), dl=e.target.closest('[data-del]'); if(ed) editRow(ed.dataset.ed); if(dl) delRow(dl.dataset.del); const du=e.target.closest('[data-dup]'); if(du) dupRow(du.dataset.dup);});
 $('#rProduto').innerHTML='<option value="">Todos os cortes</option>'+PRODUTOS.map(p=>`<option value="${p.id}">${esc(p.nome)}</option>`).join('');
 $('#rProduto').addEventListener('change',renderReport);
+try{const v=localStorage.getItem('pmmNk'); $('#rNk').checked=v===null?true:v==='1';}catch(_){$('#rNk').checked=true;}
+$('#rNk').addEventListener('change',()=>{try{localStorage.setItem('pmmNk',$('#rNk').checked?'1':'0');}catch(_){} renderReport();});
 try{const v=localStorage.getItem('pmmFotosPos'); if(v) $('#rFotos').value=v;}catch(_){}
-$('#rFotos').addEventListener('change',()=>{try{localStorage.setItem('pmmFotosPos',$('#rFotos').value);}catch(_){} renderReport();}); $('#btnPrint').addEventListener('click',()=>window.print());
+$('#rFotos').addEventListener('change',()=>{try{localStorage.setItem('pmmFotosPos',$('#rFotos').value);}catch(_){} renderReport();}); $('#btnPrint').addEventListener('click',async()=>{const sel=$('#rProduto'); $('#printInfo').textContent=`${sel.value?sel.options[sel.selectedIndex].text:'Todos os cortes'} · gerado em ${new Date().toLocaleString('pt-BR')}`;
+ const imgs=[...document.querySelectorAll('#relatorio img')]; imgs.forEach(i=>i.loading='eager'); const b=$('#btnPrint'); b.disabled=true; b.textContent='Carregando fotos…';
+ await Promise.race([Promise.all(imgs.map(i=>i.complete?1:new Promise(r=>{i.onload=i.onerror=r;}))),new Promise(r=>setTimeout(r,8000))]);
+ b.disabled=false; b.textContent='Imprimir / PDF'; window.print();});
 let LB=[],LBi=0;
 function openLb(list,i){LB=list;LBi=i;showLb();$('#lb').hidden=false;$('#lbClose').focus();}
 function showLb(){const f=LB[LBi]; $('#lbImg').src=fotoUrl(f.id); $('#lbImg').alt=f.cap; $('#lbCap').textContent=`${f.cap} · ${LBi+1}/${LB.length}`;}
@@ -516,35 +563,58 @@ function renderReport(){const rows=allRows(); const sel=$('#rProduto').value; co
  if(!L.length){el.innerHTML='<div class="card empty">Sem lançamentos para montar o relatório.</div>'; return;}
  const a=agg(L), j=agg(L.filter(r=>r.grupo==='JBS')), c=agg(L.filter(r=>r.grupo!=='JBS')); const nf=L.reduce((s,r)=>s+(r.fotos||[]).length,0);
  const frigs=new Set(L.map(r=>(r.frigorifico||'').toLowerCase()+'|'+r.sif)).size;
- let h=`<div class="rhead">${[[L.length,'avaliações (lotes)'],[a.p,'peças avaliadas'],[a.n,'NCs apontadas'],[pct(j.i),`índice de NC JBS · ${j.n}/${j.p}`],[pct(c.i),`índice de NC concorrentes · ${c.n}/${c.p}`],[nf,`fotos · ${frigs} frigoríficos/SIF`]].map(([b,t])=>`<div class="k"><b>${esc(b)}</b><span>${esc(t)}</span></div>`).join('')}</div>`;
+ let h=`<div class="rhead">${[[L.length,'avaliações (lotes)'],[a.p,'peças avaliadas'],[a.n,'NCs apontadas'],[pct(j.i),`índice de NC JBS · ${j.n}/${j.p}`],[pct(c.i),`índice de NC concorrentes · ${c.n}/${c.p}`],[nf,`fotos · ${frigs} frigoríficos/SIF`],...($('#rNk').checked?[(()=>{const J=L.filter(r=>r.grupo==='JBS'), C=L.filter(r=>r.grupo!=='JBS'); const nj=J.filter(r=>nocaute(r).rep).length, nc=C.filter(r=>nocaute(r).rep).length; return [`${J.length?Math.round(nj/J.length*100):0}% × ${C.length?Math.round(nc/C.length*100):0}%`,`lotes que reprovariam por nocaute · JBS ${nj}/${J.length} × conc. ${nc}/${C.length}`];})()]:[])].map(([b,t])=>`<div class="k"><b>${esc(b)}</b><span>${esc(t)}</span></div>`).join('')}</div>`;
+ // ----- visão geral (mesmas informações do Dashboard, com o filtro do relatório)
+ { const dp=$('#dProduto'), keep=dp.value; dp.value=sel; renderDash();
+   const g=id=>$('#'+id).innerHTML; const cov=g('cobertura'), rank=g('rankFrig'), agp=g('agrup'), top=g('topTar'), heat=g('heat');
+   dp.value=keep; renderDash();
+   h+=`<section class="rsec ov"><div class="top"><div><h3>Visão geral</h3><span style="font-size:13px;color:var(--muted)">${sel?esc(prodById(sel).nome):'Todos os cortes'} · mesmas informações do Dashboard</span></div></div><div class="rbody">
+    <div class="ovb"><h4>Progresso de coleta</h4><p class="ovn">Meta: 10 peças por frigorífico/SIF · 60 por produto · 240 no total</p><div class="cov">${cov}</div></div>
+    <div class="ovg"><div class="ovb"><h4>Índice de NC por frigorífico</h4><p class="ovn">NCs ÷ peças · quanto menor, melhor · <span style="color:var(--green-ink)">■ JBS</span> <span style="color:var(--bar-con)">■ concorrentes</span></p><div class="bars">${rank}</div></div>
+     <div class="ovb"><h4>NCs por agrupador</h4><p class="ovn">índice de NC do agrupador · JBS × concorrentes</p>${agp}</div></div>
+    <div class="ovb"><h4>Tarefas com mais NCs</h4><p class="ovn">top 12 · JBS × concorrentes</p><div class="bars">${top}</div></div>
+    <div class="ovb"><h4>Mapa de calor · tarefas × frigorífico/SIF</h4><p class="ovn">% = NCs da tarefa ÷ peças do frigorífico/SIF · quanto mais escuro, pior</p><div class="tw"><table class="heat">${heat}</table></div></div>
+   </div></section>`; }
  for(const p of PRODUTOS){const PL=L.filter(r=>r.produto===p.id); if(!PL.length) continue;
   const pj=agg(PL.filter(r=>r.grupo==='JBS')), pc=agg(PL.filter(r=>r.grupo!=='JBS'));
   const G={}; PL.forEach(r=>{const k=(r.frigorifico||'').trim().toLowerCase()+'|'+(r.sif||''); (G[k]=G[k]||[]).push(r);});
   const cards=Object.values(G).map(rs=>({rs,...agg(rs),jbs:rs[0].grupo==='JBS',frig:rs[0].frigorifico,sif:rs[0].sif})).sort((x,y)=>x.i-y.i);
-  h+=`<section class="rsec"><div class="top"><div><h3>${esc(p.nome)}</h3><span style="font-size:13px;color:var(--muted)">Família produto: ${esc(p.fam)} · ${PL.length} avaliações · ${agg(PL).p} peças</span></div>
+  h+=`<section class="rsec"><div class="top"><div><h3>${esc(p.nome)}</h3><button class="btn noprint" type="button" data-zipcut="${p.id}" style="min-height:32px;padding:4px 10px;font-size:13px;margin-top:6px">⬇ Fotos do corte (zip)</button><span style="font-size:13px;color:var(--muted)">Família produto: ${esc(p.fam)} · ${PL.length} avaliações · ${agg(PL).p} peças</span></div>
    <div class="vs"><div class="j"><b>${pct(pj.i)}</b><span>JBS · ${pj.n}/${pj.p} pç</span></div><div class="c"><b>${pct(pc.i)}</b><span>Concorrentes · ${pc.n}/${pc.p} pç</span></div></div></div><div class="rbody">`;
   const mx=Math.max(...cards.map(x=>x.i),0.0001);
   h+=`<div><h3 style="font-size:15px">Ranking por frigorífico/SIF <small style="font-weight:400;color:var(--muted)">· menor índice = melhor</small></h3><div class="bars">${cards.map((x,k)=>`<div class="bar"><span>${flogo(x.frig,18)}${k+1}º ${esc(x.frig)} ${esc(x.sif)}</span><span class="tr"><i style="width:${Math.max(2,x.i/mx*100)}%;background:${x.jbs?'var(--bar-jbs)':'var(--bar-con)'}"></i></span><span class="v">${pct(x.i)} <small>${x.n}/${x.p}</small></span></div>`).join('')}</div></div>`;
   h+='<div class="fcards">'+cards.map((x,k)=>{const T={}; x.rs.forEach(r=>Object.entries(r.ncs||{}).forEach(([kk,v])=>{T[kk]=(T[kk]||0)+(+v||0);}));
    const top=Object.entries(T).sort((a,b)=>b[1]-a[1]).slice(0,4); const datas=[...new Set(x.rs.map(r=>r.dataProducao))].sort().map(fmtD).join(', ');
    const marcas=[...new Set(x.rs.map(r=>r.marca).filter(Boolean))].join(', ');
-   const fotos=x.rs.flatMap(r=>(r.fotos||[]).map(id=>({id,cap:`${p.nome} · ${x.frig} ${x.sif} · produção ${fmtD(r.dataProducao)}`})));
+   const fotos=x.rs.flatMap(r=>(r.fotos||[]).map(id=>({id,cap:`${p.nome} · ${x.frig} ${x.sif} · produção ${fmtD(r.dataProducao)}`,prod:p.nome,frig:x.frig,sif:x.sif,dp:r.dataProducao})));
    const gk=p.id+'_'+k; GAL[gk]=fotos; if(fotos.length) APX.push({p:p.nome,x,fotos,gk});
    return `<article class="fc" style="border-top:5px solid ${x.jbs?'var(--bar-jbs)':'var(--bar-con)'}">
     <div class="fc-tags"><span class="pill ${x.jbs?'jbs':''}">${k+1}º no ranking · ${x.jbs?'JBS':'Concorrente'}</span>${x.rs.some(r=>r.pendente)?`<span class="warn" title="${esc(x.rs.filter(r=>r.pendente).map(r=>fmtD(r.dataProducao)+(r.pendenteTxt?': '+r.pendenteTxt:'')).join(' · '))}">⚠️ pendente</span>`:''}</div>
     <div class="fc-id"><div class="fc-logo">${flogo(x.frig,40)||`<span class="fc-ini">${esc((x.frig||'?').slice(0,2).toUpperCase())}</span>`}</div><div class="fc-name"><b>${esc(x.frig)}</b><span>SIF ${esc(x.sif)}</span><small>${marcas?esc(marcas)+' · ':''}produção ${esc(datas)}</small></div>
      <div class="fc-idx"><b>${pct(x.i)}</b><small>índice de NC</small><small>${x.n} NCs / ${x.p} peças</small></div></div>
-    ${(()=>{const R=x.rs.map(r=>({r,n:nocaute(r)})); const nr=R.filter(z=>z.n.rep).length; return `<div class="fc-nk ${nr?'rep':'ok'}"><div class="fc-nk-h"><span>Regra de nocaute · Auditoria de Produtos – Cortes</span><b>${nr?`🚫 ${nr} de ${R.length} lote${R.length>1?'s':''} reprovaria${nr>1?'m':''}`:`✓ ${R.length>1?'todos os lotes aprovariam':'aprovaria'}`}</b></div>${nr?`<ul>${R.filter(z=>z.n.rep).map(z=>`<li>${R.length>1?`<b>Produção ${fmtD(z.r.dataProducao)}:</b> `:''}${esc(z.n.motivo)}</li>`).join('')}</ul>`:''}</div>`;})()}
+    ${!$('#rNk').checked?'':(()=>{const R=x.rs.map(r=>({r,n:nocaute(r)})); const nr=R.filter(z=>z.n.rep).length; return `<div class="fc-nk ${nr?'rep':'ok'}"><div class="fc-nk-h"><span>Regra de nocaute · Auditoria de Produtos – Cortes</span><b>${nr?`🚫 ${nr} de ${R.length} lote${R.length>1?'s':''} reprovaria${nr>1?'m':''}`:`✓ ${R.length>1?'todos os lotes aprovariam':'aprovaria'}`}</b></div>${nr?`<ul>${R.filter(z=>z.n.rep).map(z=>`<li>${R.length>1?`<b>Produção ${fmtD(z.r.dataProducao)}:</b> `:''}${esc(z.n.motivo)}</li>`).join('')}</ul>`:''}</div>`;})()}
     <div class="fc-sub">Principais NCs <span>NCs · % das peças</span></div>
     <div class="tl">${top.length?top.map(([kk,v])=>`<div><span>${esc(kk.split('|')[1])}<small>${esc(kk.split('|')[0])}</small></span><b>${v}</b><em>${pct(v/x.p)}</em></div>`).join(''):'<span style="color:var(--green-ink);font-weight:600">Nenhuma NC apontada</span>'}</div>
     ${x.rs.some(r=>r.obs)?`<div class="obsb"><b>Observações</b>${x.rs.filter(r=>r.obs).map(r=>`<p><span>Produção ${fmtD(r.dataProducao)}:</span> ${esc(r.obs).replace(/\n/g,'<br>')}</p>`).join('')}</div>`:''}
-    ${fim?(fotos.length?`<div class="nofoto">📷 ${fotos.length} foto${fotos.length>1?'s':''} no final do relatório</div>`:'<div class="nofoto">Sem fotos neste frigorífico/SIF</div>'):fotos.length?`<div class="gal">${fotos.map((f,i)=>`<button type="button" data-g="${gk}" data-i="${i}" aria-label="Ampliar foto ${i+1}"><img src="${fotoUrl(f.id)}" alt="${esc(f.cap)}" loading="lazy"></button>`).join('')}</div>`:'<div class="nofoto">Sem fotos neste frigorífico/SIF</div>'}</article>`;}).join('')+'</div></div></section>';}
+    ${fim?(fotos.length?`<div class="nofoto">📷 ${fotos.length} foto${fotos.length>1?'s':''} no final do relatório</div>`:'<div class="nofoto">Sem fotos neste frigorífico/SIF</div>'):fotos.length?`<div class="gal">${fotos.map((f,i)=>`<button type="button" data-g="${gk}" data-i="${i}" aria-label="Ampliar foto ${i+1}"><img src="${fotoUrl(f.id)}" alt="${esc(f.cap)}" loading="lazy"></button>`).join('')}</div>`:'<div class="nofoto">Sem fotos neste frigorífico/SIF</div>'}${fotos.length?`<button class="btn noprint" type="button" data-zip="${gk}" style="min-height:34px;padding:6px 10px;font-size:13px">⬇ Baixar ${fotos.length} foto${fotos.length>1?'s':''} (zip)</button>`:''}</article>`;}).join('')+'</div></div></section>';}
  if(fim&&APX.length){ h+=`<section class="rsec apx"><div class="top"><div><h3>Fotos das avaliações</h3><span style="font-size:13px;color:var(--muted)">por corte e frigorífico/SIF</span></div></div><div class="rbody">`;
   let last=''; APX.forEach(a=>{ if(a.p!==last){h+=`<h3 style="font-size:18px;margin:6px 0 0">${esc(a.p)}</h3>`; last=a.p;}
    h+=`<div class="apxg"><div class="row" style="gap:8px">${flogo(a.x.frig,24)}<b style="color:var(--navy)">${esc(a.x.frig)} · SIF ${esc(a.x.sif)}</b><span class="pill ${a.x.jbs?'jbs':''}">${a.x.jbs?'JBS':'Concorrente'}</span><span style="font-size:12px;color:var(--muted)">${a.fotos.length} foto${a.fotos.length>1?'s':''}</span></div><div class="gal big">${a.fotos.map((f,i)=>`<figure><button type="button" data-g="${a.gk}" data-i="${i}" aria-label="Ampliar foto ${i+1}"><img src="${fotoUrl(f.id)}" alt="${esc(f.cap)}" loading="lazy"></button></figure>`).join('')}</div></div>`;});
   h+='</div></section>'; }
  el.innerHTML=h;}
-$('#relatorio').addEventListener('click',e=>{const b=e.target.closest('[data-g]'); if(b) openLb(GAL[b.dataset.g],+b.dataset.i);});
+$('#relatorio').addEventListener('click',e=>{const b=e.target.closest('[data-g]'); if(b) openLb(GAL[b.dataset.g],+b.dataset.i);
+ const z=e.target.closest('[data-zip]'); if(z){const f=GAL[z.dataset.zip]||[]; if(f.length) zipDown(z,f,`PMM Chile - ${f[0].prod} - ${f[0].frig} SIF ${f[0].sif}`,0);}
+ const c=e.target.closest('[data-zipcut]'); if(c){const pid=c.dataset.zipcut; const f=Object.entries(GAL).filter(([k])=>k.startsWith(pid+'_')).flatMap(([,v])=>v); if(!f.length){c.textContent='Sem fotos neste corte'; return;} zipDown(c,f,`PMM Chile - ${f[0].prod}`,1);} });
+document.querySelector('[data-zipall]').addEventListener('click',e=>{const f=Object.values(GAL).flat(); if(!f.length){e.currentTarget.textContent='Sem fotos'; return;} zipDown(e.currentTarget,f,'PMM Chile - fotos',2);});
+function showZip(url,nome,n){let t=$('#zipToast'); if(!t){t=document.createElement('div'); t.id='zipToast'; t.className='noprint'; t.setAttribute('role','status'); document.body.appendChild(t);}
+ t.innerHTML=`<span>✅ <b>${esc(nome)}</b> · ${n} foto${n>1?'s':''}</span><a class="btn pri" href="${esc(url)}" target="_blank" rel="noopener">Baixar zip</a><button type="button" class="btn" aria-label="Fechar">×</button>`;
+ t.querySelector('button').onclick=()=>t.remove(); t.querySelector('a').focus();}
+const safe=t=>String(t||'').replace(/[\\/:*?"<>|]+/g,'-').trim();
+async function zipDown(btn,fotos,nome,nivel){ if(!canEdit){openLogin(); return;} if(!navigator.onLine){btn.textContent='Sem internet'; return;}
+ const cnt={}; const itens=fotos.map(f=>{const dir=(nivel>=2?safe(f.prod)+'/':'')+(nivel>=1?safe(`${f.frig} SIF ${f.sif}`)+'/':''); const base=`producao_${(f.dp||'').split('-').reverse().join('-')}`; const k=dir+base; cnt[k]=(cnt[k]||0)+1; return {id:f.id,path:`${dir}${base}_${String(cnt[k]).padStart(2,'0')}.jpg`};});
+ const txt=btn.textContent; btn.disabled=true; btn.textContent=`Gerando zip (${itens.length} fotos)…`;
+ try{ const r=await api('zip',{itens,nome:safe(nome)}); btn.disabled=false; btn.textContent=txt; showZip(r.url,nome,itens.length); }
+ catch(err){ btn.disabled=false; btn.textContent=txt; alert(err.code==='acao_desconhecida'?'O Apps Script ainda não tem a função de zip. Atualize o código do script e implante uma nova versão.':'Não foi possível gerar o zip ('+(err.code||err.message)+'). Se forem muitas fotos, tente por corte ou por frigorífico/SIF.'); } }
 function allRows(){return [...rows.filter(r=>!FILA.some(q=>q.editingId===r.id)),...FILA.map(q=>({...q.doc,id:q.editingId||('fila-'+q.qid),_fila:true,fotos:q.doc.fotos||[]}))];}
 function renderAll(){renderDash(); renderTable(); renderPend(); fillLists(); renderReport();}
 
