@@ -123,7 +123,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .rtab td.rc,.rtab th.rc{font-variant-numeric:tabular-nums;min-width:58px}.rtab td.rc b{color:var(--navy)}.rtab td.neg{color:var(--red);font-weight:700}
 .rtab tfoot td{background:var(--green-soft);font-weight:700;color:var(--green-ink);padding:8px 4px}.rtab .rm{border:none;background:none;color:var(--muted);font-size:18px;cursor:pointer;width:32px;height:32px}
 .rd-comp{display:flex;height:16px;border-radius:8px;overflow:hidden;background:var(--soft)}.rd-comp i{display:block;height:100%}
-.rd-l{background:linear-gradient(90deg,#3AA615,#6EE63B)}.rd-g{background:#F2C94C}.rd-s{background:#F2994A}.rd-r{background:#9C8CF0}.rd-d{background:#C9C7D9}
+.rd-l{background:linear-gradient(90deg,#3AA615,#6EE63B)}.rd-g{background:#F2C94C}.rd-s{background:#F2994A}.rd-r{background:#9C8CF0}.rd-x{background:#E06C75}.rd-d{background:#C9C7D9}
 .rd-row{display:grid;grid-template-columns:22px 46px minmax(0,1.1fr) 70px minmax(120px,2.2fr) 78px;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--soft);font-size:13px}
 .rd-leg{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted)}.rd-leg i{display:inline-block;width:12px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
 .rd-big{font-size:18px;font-weight:700;color:var(--navy);text-align:right}
@@ -334,8 +334,8 @@ tr.pend td{background:#FFF8E1}
       <div class="row"><h3 style="margin:0">Rendimento</h3><span class="spacer"></span><label style="display:flex;gap:8px;align-items:center;font-weight:600;cursor:pointer"><input type="checkbox" id="fRendOn" style="width:20px;height:20px;min-height:0"> Lançar rendimento deste lote</label></div>
       <div id="rendBox" hidden>
         <p style="font-size:13px;color:var(--muted);margin:6px 0 10px">Pesos em kg (use vírgula ou ponto). Os percentuais são calculados sobre o peso bruto de cada peça.</p>
-        <div class="tw"><table class="rtab"><thead><tr><th>Peça</th><th>Bruto</th><th>Gordura</th><th>Sebo</th><th>Recorte</th><th>Líquido</th><th class="rc">Rend.</th><th class="rc">Gord.</th><th class="rc">Sebo</th><th class="rc">Rec.</th><th class="rc">Dif.</th><th></th></tr></thead><tbody id="rendRows"></tbody><tfoot id="rendFoot"></tfoot></table></div>
-        <div class="row" style="margin-top:8px"><button class="btn" type="button" id="rendAdd">+ Adicionar peça</button><span id="rendMsg" style="font-size:13px;color:var(--muted)"></span></div>
+        <div class="tw"><table class="rtab"><thead id="rendHead"></thead><tbody id="rendRows"></tbody><tfoot id="rendFoot"></tfoot></table></div>
+        <div class="row" style="margin-top:8px"><button class="btn" type="button" id="rendAdd">+ Adicionar peça</button><span class="row" style="gap:6px"><input id="rendItem" list="rendItemList" placeholder="novo item (ex.: osso, aparas)" style="width:210px;min-height:40px"><datalist id="rendItemList"></datalist><button class="btn" type="button" id="rendItemAdd">+ Adicionar item</button></span><span id="rendMsg" style="font-size:13px;color:var(--muted)"></span></div>
       </div>
     </div>
     <div class="card" style="margin-top:14px" id="fotosCard">
@@ -381,7 +381,7 @@ tr.pend td{background:#FFF8E1}
   <section class="view" id="v-rendimento" aria-labelledby="h-rend">
     <div class="row"><h2 id="h-rend" style="margin:0">Rendimento</h2><span class="spacer"></span>
       <label class="f" style="flex-direction:row;align-items:center;gap:8px">Corte<select id="rdProduto" style="width:auto"></select></label></div>
-    <p style="font-size:13px;color:var(--muted);margin:6px 0 12px">Rendimento = peso líquido após o refile ÷ peso bruto. Gordura, sebo e recorte em % do bruto. Diferença = bruto − (líquido + gordura + sebo + recorte), em % do bruto. Médias do lote e do frigorífico/SIF ponderadas pelo peso.</p>
+    <p style="font-size:13px;color:var(--muted);margin:6px 0 12px">Rendimento = peso líquido ÷ peso bruto. As demais partes em % do bruto (acém e coxão mole: gordura, sebo e recorte; recorte 80 VL: sebo + tendinosas + coágulos + ácido lático). Peso líquido calculado automaticamente: bruto − (soma das partes pesadas). Médias ponderadas pelo peso.</p>
     <div id="rendOut"></div>
   </section>
 
@@ -486,13 +486,13 @@ async function flushFila(){ if(flushing||!canEdit||!navigator.onLine) return; fl
 addEventListener('online',()=>{flushFila(); loadRows(true);});
 // ===== rascunho automático =====
 const DKEY='pmmChileRascunho'; let draftT=null, restoring=false;
-function formState(){return {editingId,produto:fP.value,frig:fF.value,sif:$('#fSif').value,marca:$('#fMarca').value,sku:$('#fSku').value,dp:$('#fDataProd').value,da:$('#fDataAv').value,pecas:$('#fPecas').value,ncs:{...ncs},obs:$('#fObs').value,pend:$('#fPend').checked,pendTxt:$('#fPendTxt').value,fotos:fotos.map(f=>f.lid?{lid:f.lid}:{id:f.id}),rendOn:$('#fRendOn').checked,rend:rend.map(r=>({...r})),t:Date.now()};}
+function formState(){return {editingId,produto:fP.value,frig:fF.value,sif:$('#fSif').value,marca:$('#fMarca').value,sku:$('#fSku').value,dp:$('#fDataProd').value,da:$('#fDataAv').value,pecas:$('#fPecas').value,ncs:{...ncs},obs:$('#fObs').value,pend:$('#fPend').checked,pendTxt:$('#fPendTxt').value,fotos:fotos.map(f=>f.lid?{lid:f.lid}:{id:f.id}),rendOn:$('#fRendOn').checked,rend:rend.map(r=>({...r})),rendExtra:rendExtra.map(e=>({...e})),t:Date.now()};}
 function hasContent(d){return (d.rend||[]).some(r=>r.b)||d.frig||d.sif||d.dp||Object.keys(d.ncs||{}).length||d.obs||(d.fotos||[]).length;}
 function saveDraft(){ if(restoring) return; clearTimeout(draftT); draftT=setTimeout(()=>{try{const d=formState(); if(hasContent(d)) localStorage.setItem(DKEY,JSON.stringify(d)); else localStorage.removeItem(DKEY);}catch(_){}},400);}
 function clearDraft(){clearTimeout(draftT); try{localStorage.removeItem(DKEY);}catch(_){} $('#draftBar').innerHTML='';}
 async function restoreDraft(){ let d=null; try{d=JSON.parse(localStorage.getItem(DKEY)||'null');}catch(_){} if(!d||!hasContent(d)) return; restoring=true;
  editingId=d.editingId||null; fP.value=d.produto; onProduto(false); fF.value=d.frig||''; onFrig(); $('#fSif').value=d.sif||''; $('#fMarca').value=d.marca||''; $('#fSku').value=d.sku||''; $('#fDataProd').value=d.dp||''; $('#fDataAv').value=d.da||today; $('#fPecas').value=d.pecas||10; $('#fObs').value=d.obs||''; $('#fPend').checked=!!d.pend; $('#fPendTxt').value=d.pendTxt||''; pendUI();
- ncs={...(d.ncs||{})}; rend=(d.rend||[]).map(r=>({...r})); $('#fRendOn').checked=!!d.rendOn; renderRend(); fotos=[]; for(const f of d.fotos||[]){ if(f.lid){const ph=await getL('fotos',f.lid).catch(()=>null); if(ph) fotos.push({lid:f.lid,url:'data:image/jpeg;base64,'+ph.data});} else fotos.push({id:f.id}); }
+ ncs={...(d.ncs||{})}; rend=(d.rend||[]).map(r=>({...r})); rendExtra=(d.rendExtra||[]).map(e=>({...e})); $('#fRendOn').checked=!!d.rendOn; renderRend(); fotos=[]; for(const f of d.fotos||[]){ if(f.lid){const ph=await getL('fotos',f.lid).catch(()=>null); if(ph) fotos.push({lid:f.lid,url:'data:image/jpeg;base64,'+ph.data});} else fotos.push({id:f.id}); }
  renderTasks(); renderFotos(); if(editingId){$('#editTag').hidden=false; $('#btnSalvar').textContent='Salvar alterações';}
  $('#draftBar').innerHTML=`<div class="draftbar">📝 Rascunho recuperado de ${new Date(d.t).toLocaleString('pt-BR')} <button type="button" id="dDiscard">descartar rascunho</button></div>`;
  $('#dDiscard').addEventListener('click',()=>{clearForm(); clearDraft();}); restoring=false; }
@@ -502,25 +502,46 @@ function dupRow(id){const r=rows.find(x=>x.id===id); if(!r) return; clearForm();
  $('#formMsg').textContent=`Duplicado de ${r.produtoNome} · ${r.frigorifico} ${r.sif||''}. Preencha a data de produção, as NCs e as fotos.`; location.hash='#lancar'; scrollTo(0,0); $('#fDataProd').focus(); saveDraft();}
 // ===== rendimento =====
 let rend=[];
+const RF_PAD=[['g','Gordura','Gord.'],['s','Sebo','Sebo'],['r','Recorte','Rec.']];
+const RF={'Recorte':[['x','Sebo + tendinosas + coágulos + ác. lático','Descarte']]};
+const RPARTS={g:'Gordura',s:'Sebo',r:'Recorte',x:'Sebo + tend. + coág. + ác. lát.'}; const RCLS={g:'rd-g',s:'rd-s',r:'rd-r',x:'rd-x'};
+let rendExtra=[]; const XPAL=['#4FC3F7','#BA68C8','#8D6E63','#FF8A65','#4DB6AC','#F06292','#90A4AE'];
+const slugK=t=>'e_'+String(t).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');
+function lblOf(k){ if(RPARTS[k]) return RPARTS[k]; const e=rendExtra.find(x=>x.k===k)||allRows().flatMap(r=>r.rendCols||[]).find(x=>x.k===k); return e?e.label:k; }
+function clsOf(k,i){return RCLS[k]||'';}
+function colOf(k,list){const i=list.indexOf(k); return RCLS[k]?'':`background:${XPAL[i%XPAL.length]}`;}
+const partsFor=fam=>RF[fam]||RF_PAD;
 const num=v=>{const n=parseFloat(String(v??'').replace(',','.')); return isFinite(n)?n:0;};
 const p1d=x=>!isFinite(x)?'–':(x*100).toFixed(1).replace('.',',')+'%';
-function rcalc(r){const b=num(r.b),g=num(r.g),s_=num(r.s),c=num(r.r),l=num(r.l); if(!b) return null; const d=b-(g+s_+c+l); return {b,l,g,s:s_,c,d,pl:l/b,pg:g/b,ps:s_/b,pc:c/b,pd:d/b};}
-function rsum(list){const v=list.map(rcalc).filter(Boolean); if(!v.length) return null; const S=k=>v.reduce((a,x)=>a+x[k],0); const B=S('b');
- return {n:v.length,B,pl:S('l')/B,pg:S('g')/B,ps:S('s')/B,pc:S('c')/B,pd:S('d')/B,mb:B/v.length};}
-function renderRend(){ const on=$('#fRendOn').checked; $('#rendBox').hidden=!on; if(!on) return;
- $('#rendRows').innerHTML=rend.map((r,i)=>{const c=rcalc(r); return `<tr><td><b>${i+1}</b></td>${['b','g','s','r','l'].map(k=>`<td><input inputmode="decimal" data-ri="${i}" data-rk="${k}" value="${esc(r[k]??'')}" aria-label="Peça ${i+1} ${({b:'bruto',g:'gordura',s:'sebo',r:'recorte',l:'líquido'})[k]}"></td>`).join('')}
-  <td class="rc"><b>${c?p1d(c.pl):'–'}</b></td><td class="rc">${c?p1d(c.pg):'–'}</td><td class="rc">${c?p1d(c.ps):'–'}</td><td class="rc">${c?p1d(c.pc):'–'}</td><td class="rc ${c&&c.d<-0.0005?'neg':''}">${c?p1d(c.pd):'–'}</td><td><button type="button" class="rm" data-rrm="${i}" aria-label="Remover peça ${i+1}">×</button></td></tr>`;}).join('');
+function rcalc(r){const b=num(r.b); if(!b) return null; const pr={}; let sp=0; for(const k of Object.keys(r).filter(k=>k!=='b'&&k!=='l')) if(r[k]!==undefined&&r[k]!==''){pr[k]=num(r[k]); sp+=pr[k];}
+ const l=b-sp, d=0; const pp={}; for(const k in pr) pp[k]=pr[k]/b; return {b,l,pr,pp,d,pl:l/b,pd:0};}
+function rsum(list){const v=list.map(rcalc).filter(Boolean); if(!v.length) return null; const B=v.reduce((a,x)=>a+x.b,0), Lq=v.reduce((a,x)=>a+x.l,0), D=v.reduce((a,x)=>a+x.d,0);
+ const P={}; v.forEach(x=>{for(const k in x.pr) P[k]=(P[k]||0)+x.pr[k];}); const pp={}; for(const k in P) pp[k]=P[k]/B; return {n:v.length,B,pl:Lq/B,pd:D/B,pp,mb:B/v.length};}
+function curParts(){return [...partsFor(prodById(fP.value).fam),...rendExtra.map(e=>[e.k,e.label,e.label,1])];}
+function renderRend(){ const on=$('#fRendOn').checked; $('#rendBox').hidden=!on; if(!on) return; fillItemList(); const P=curParts();
+ $('#rendHead').innerHTML=`<tr><th>Peça</th><th>Bruto</th>${P.map(p=>`<th>${esc(p[1])}${p[3]?` <button type="button" class="rm" data-rx="${esc(p[0])}" aria-label="Remover item ${esc(p[1])}" style="width:22px;height:22px;font-size:14px">×</button>`:''}</th>`).join('')}<th>Líquido (calc.)</th><th class="rc">Rend.</th>${P.map(p=>`<th class="rc">${esc(p[2])}</th>`).join('')}<th></th></tr>`;
+ const keys=['b',...P.map(p=>p[0])];
+ $('#rendRows').innerHTML=rend.map((r,i)=>{const c=rcalc(r); return `<tr><td><b>${i+1}</b></td>${keys.map(k=>`<td><input inputmode="decimal" data-ri="${i}" data-rk="${k}" value="${esc(r[k]??'')}" aria-label="Peça ${i+1} ${k==='b'?'bruto':lblOf(k)}"></td>`).join('')}
+  <td class="rc liq ${c&&c.l<0?'neg':''}">${c?c.l.toFixed(3).replace('.',',')+' kg':'–'}</td><td class="rc"><b>${c?p1d(c.pl):'–'}</b></td>${P.map(p=>`<td class="rc">${c&&c.pp[p[0]]!==undefined?p1d(c.pp[p[0]]):'–'}</td>`).join('')}<td><button type="button" class="rm" data-rrm="${i}" aria-label="Remover peça ${i+1}">×</button></td></tr>`;}).join('');
  updRendFoot(); }
-function updRendFoot(){ const m=rsum(rend); $('#rendFoot').innerHTML=m?`<tr><td colspan="6" style="text-align:right">Média do lote (${m.n} peça${m.n>1?'s':''} · bruto médio ${m.mb.toFixed(2).replace('.',',')} kg)</td><td class="rc">${p1d(m.pl)}</td><td class="rc">${p1d(m.pg)}</td><td class="rc">${p1d(m.ps)}</td><td class="rc">${p1d(m.pc)}</td><td class="rc">${p1d(m.pd)}</td><td></td></tr>`:'';
- const neg=rend.map(rcalc).some(c=>c&&c.d<-0.0005); $('#rendMsg').textContent=neg?'⚠ Há peça em que a soma das partes passa do peso bruto: confira os pesos.':''; }
-function ensureRendRows(){const n=Math.max(1,parseInt($('#fPecas').value,10)||10); while(rend.length<n) rend.push({b:'',g:'',s:'',r:'',l:''});}
+function updRendFoot(){ const P=curParts(); const m=rsum(rend); $('#rendFoot').innerHTML=m?`<tr><td colspan="${2+P.length}" style="text-align:right">Média do lote (${m.n} peça${m.n>1?'s':''} · bruto médio ${m.mb.toFixed(2).replace('.',',')} kg)</td><td class="rc">${(m.B*m.pl/m.n).toFixed(3).replace('.',',')} kg</td><td class="rc">${p1d(m.pl)}</td>${P.map(p=>`<td class="rc">${m.pp[p[0]]!==undefined?p1d(m.pp[p[0]]):'–'}</td>`).join('')}<td></td></tr>`:'';
+ const neg=rend.map(rcalc).some(c=>c&&c.l<0); $('#rendMsg').textContent=neg?'⚠ Há peça em que a soma das partes passa do peso bruto: confira os pesos.':''; }
+function ensureRendRows(){const n=Math.max(1,parseInt($('#fPecas').value,10)||10); while(rend.length<n) rend.push({});}
 $('#fRendOn').addEventListener('change',()=>{ if($('#fRendOn').checked&&!rend.length) ensureRendRows(); renderRend(); saveDraft&&saveDraft(); });
-$('#rendAdd').addEventListener('click',()=>{rend.push({b:'',g:'',s:'',r:'',l:''}); renderRend(); const ins=$('#rendRows').querySelectorAll('tr:last-child input'); if(ins[0]) ins[0].focus();});
-$('#rendRows').addEventListener('input',e=>{const t=e.target.closest('[data-rk]'); if(!t) return; rend[+t.dataset.ri][t.dataset.rk]=t.value;
- const tr=t.closest('tr'), c=rcalc(rend[+t.dataset.ri]); const cells=tr.querySelectorAll('td.rc'); const vals=c?[`<b>${p1d(c.pl)}</b>`,p1d(c.pg),p1d(c.ps),p1d(c.pc),p1d(c.pd)]:['–','–','–','–','–'];
- cells.forEach((td,i)=>td.innerHTML=vals[i]); cells[4].classList.toggle('neg',!!(c&&c.d<-0.0005)); updRendFoot();});
+fP.addEventListener('change',()=>renderRend());
+$('#rendAdd').addEventListener('click',()=>{rend.push({}); renderRend(); const ins=$('#rendRows').querySelectorAll('tr:last-child input'); if(ins[0]) ins[0].focus();});
+$('#rendRows').addEventListener('input',e=>{const t=e.target.closest('[data-rk]'); if(!t) return; rend[+t.dataset.ri][t.dataset.rk]=t.value; const P=curParts();
+ const tr=t.closest('tr'), c=rcalc(rend[+t.dataset.ri]); const cells=tr.querySelectorAll('td.rc'); const vals=[c?c.l.toFixed(3).replace('.',',')+' kg':'–',c?`<b>${p1d(c.pl)}</b>`:'–',...P.map(p=>c&&c.pp[p[0]]!==undefined?p1d(c.pp[p[0]]):'–')];
+ cells.forEach((td,i)=>td.innerHTML=vals[i]); cells[0].classList.toggle('neg',!!(c&&c.l<0)); updRendFoot();});
+function fillItemList(){const used=[...new Set(allRows().flatMap(r=>(r.rendCols||[]).map(c=>c.label)))]; $('#rendItemList').innerHTML=used.map(u=>`<option value="${esc(u)}">`).join('');}
+$('#rendItemAdd').addEventListener('click',()=>{const lb=$('#rendItem').value.trim(); if(!lb){$('#rendItem').focus(); return;} const k=slugK(lb);
+ if(k==='e_'||rendExtra.some(e=>e.k===k)||curParts().some(p=>p[1].toLowerCase()===lb.toLowerCase())){$('#rendMsg').textContent='Esse item já está na tabela.'; return;}
+ rendExtra.push({k,label:lb}); $('#rendItem').value=''; renderRend(); saveDraft();});
+$('#rendItem').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault(); $('#rendItemAdd').click();}});
+$('#rendHead').addEventListener('click',e=>{const b=e.target.closest('[data-rx]'); if(!b) return; const k=b.dataset.rx; const e2=rendExtra.find(x=>x.k===k); if(!confirm(`Remover o item "${e2?e2.label:k}" e os pesos lançados nele?`)) return;
+ rendExtra=rendExtra.filter(x=>x.k!==k); rend.forEach(r=>delete r[k]); renderRend(); saveDraft();});
 $('#rendRows').addEventListener('click',e=>{const b=e.target.closest('[data-rrm]'); if(!b) return; rend.splice(+b.dataset.rrm,1); renderRend(); saveDraft();});
-function rendClean(){return rend.filter(r=>num(r.b)>0).map(r=>({b:num(r.b),g:num(r.g),s:num(r.s),r:num(r.r),l:num(r.l)}));}
+function rendClean(){const ks=['b',...curParts().map(p=>p[0])]; return rend.filter(r=>num(r.b)>0).map(r=>{const o={}; ks.forEach(k=>o[k]=num(r[k])); o.l=+(o.b-ks.slice(1).reduce((a,k)=>a+o[k],0)).toFixed(3); return o;});}
 function renderFotos(){ $('#thumbs').innerHTML=fotos.map((f,i)=>`<div class="thumb"><a href="${f.url||fotoUrl(f.id)}" target="_blank" rel="noopener"><img src="${f.url||fotoUrl(f.id)}" alt="Foto ${i+1} da avaliação"></a><button type="button" data-rm="${i}" aria-label="Remover foto ${i+1}">×</button></div>`).join('')+Array.from({length:uploading},()=>'<div class="thumb"><span class="up">enviando…</span></div>').join('');
  $('#fotosCount').textContent=`${fotos.length} foto${fotos.length===1?'':'s'}`; $('#btnSalvar').disabled=!canEdit||uploading>0;}
 $('#thumbs').addEventListener('click',e=>{const b=e.target.closest('[data-rm]'); if(!b) return; const f=fotos.splice(+b.dataset.rm,1)[0]; if(f&&f.lid) delL('fotos',f.lid).catch(()=>{}); renderFotos(); saveDraft();});
@@ -563,7 +584,7 @@ function updGroupCounts(){document.querySelectorAll('details.grp').forEach(d=>{c
  d.querySelector('.cnt').textContent=`${ts.reduce((s,t)=>s+(ncs[key(g,t)]||0),0)} NC · ${ts.length} tarefas`;});}
 function updResumo(){ const nk=nocaute({ncs}); const el=$('#nkLive'); el.hidden=!Object.keys(ncs).length; el.className='nk '+(nk.rep?'rep':'ok'); el.textContent=nk.rep?'🚫 Reprovaria':'✓ Aprovaria'; el.title=nk.rep?nk.motivo:'Nenhuma regra de nocaute atingida';const n=Object.values(ncs).reduce((a,b)=>a+b,0), p=+$('#fPecas').value||0; $('#ncResumo').textContent=`${n} NC · índice ${p?pct(n/p):'–'}`;}
 $('#fBusca').addEventListener('input',renderTasks); $('#fPecas').addEventListener('input',updResumo);
-function clearForm(){editingId=null; ncs={}; ['#fFrig','#fSif','#fMarca','#fSku','#fDataProd','#fObs','#fBusca'].forEach(s=>$(s).value=''); fotos=[]; renderFotos(); rend=[]; $('#fRendOn').checked=false; renderRend(); $('#fPend').checked=false; $('#fPendTxt').value=''; pendUI(); $('#fPecas').value=10; $('#fDataAv').value=today; $('#editTag').hidden=true; $('#btnSalvar').textContent='Salvar lançamento'; renderTasks();}
+function clearForm(){editingId=null; ncs={}; ['#fFrig','#fSif','#fMarca','#fSku','#fDataProd','#fObs','#fBusca'].forEach(s=>$(s).value=''); fotos=[]; renderFotos(); rend=[]; rendExtra=[]; $('#fRendOn').checked=false; renderRend(); $('#fPend').checked=false; $('#fPendTxt').value=''; pendUI(); $('#fPecas').value=10; $('#fDataAv').value=today; $('#editTag').hidden=true; $('#btnSalvar').textContent='Salvar lançamento'; renderTasks();}
 $('#btnLimpar').addEventListener('click',()=>{fotos.forEach(f=>{if(f.lid) delL('fotos',f.lid).catch(()=>{});}); clearForm(); clearDraft(); $('#formMsg').textContent='';});
 $('#btnSalvar').addEventListener('click',async()=>{
  const msg=$('#formMsg'); if(!canEdit){msg.textContent='Entre com a senha para salvar.'; openLogin(); return;}
@@ -575,7 +596,7 @@ $('#btnSalvar').addEventListener('click',async()=>{
  const dup=rows.find(r=>r.id!==editingId&&r.produto===p.id&&(r.frigorifico||'').toLowerCase()===frig.toLowerCase()&&r.sif===sif&&r.dataProducao===dp);
  if(dup&&!confirm(`Já existe um lançamento de ${p.nome} · ${frig} ${sif} com produção em ${fmtD(dp)}. Salvar mesmo assim como outro lançamento?`)){msg.textContent='Não salvo.'; return;}
  const over=Object.entries(ncs).find(([,v])=>v>pec); if(over){msg.textContent=`"${over[0].split('|')[1]}" tem mais NCs que peças avaliadas.`; return;}
- const doc={produto:p.id,produtoNome:p.nome,familia:p.fam,frigorifico:frig,grupo:isJBS(frig)?'JBS':'Concorrente',sif,sku:$('#fSku').value.trim(),marca:$('#fMarca').value.trim(),fotos:fotos.filter(f=>f.id).map(f=>f.id),dataProducao:dp,dataAvaliacao:da,pecas:pec,ncs:{...ncs},obs:$('#fObs').value.trim(),rend:$('#fRendOn').checked?rendClean():[],pendente:$('#fPend').checked,pendenteTxt:$('#fPend').checked?$('#fPendTxt').value.trim():'',atualizadoEm:new Date().toISOString()};
+ const doc={produto:p.id,produtoNome:p.nome,familia:p.fam,frigorifico:frig,grupo:isJBS(frig)?'JBS':'Concorrente',sif,sku:$('#fSku').value.trim(),marca:$('#fMarca').value.trim(),fotos:fotos.filter(f=>f.id).map(f=>f.id),dataProducao:dp,dataAvaliacao:da,pecas:pec,ncs:{...ncs},obs:$('#fObs').value.trim(),rend:$('#fRendOn').checked?rendClean():[],rendCols:$('#fRendOn').checked?rendExtra.map(e=>({...e})):[],pendente:$('#fPend').checked,pendenteTxt:$('#fPend').checked?$('#fPendTxt').value.trim():'',atualizadoEm:new Date().toISOString()};
  const btn=$('#btnSalvar'); btn.disabled=true; msg.textContent='Salvando…';
  const lids=fotos.filter(f=>f.lid).map(f=>f.lid); if(editingId){const old=rows.find(r=>r.id===editingId); doc.criadoEm=old?.criadoEm||doc.atualizadoEm;} else doc.criadoEm=doc.atualizadoEm;
  const enqueue=async()=>{await putL('fila',{qid:new Date().toISOString()+Math.random().toString(36).slice(2,6),editingId,doc,lids}); await updFila();};
@@ -586,7 +607,7 @@ $('#btnSalvar').addEventListener('click',async()=>{
  }catch(e){msg.textContent='Não foi possível salvar ('+(e.code||e.message||'erro')+').';}
  finally{btn.disabled=false;}});
 function editRow(id){const r=rows.find(x=>x.id===id); if(!r) return; editingId=id; fP.value=r.produto; onProduto(false); fF.value=r.frigorifico; onFrig();
- rend=(r.rend||[]).map(x=>({b:String(x.b).replace('.',','),g:String(x.g).replace('.',','),s:String(x.s).replace('.',','),r:String(x.r).replace('.',','),l:String(x.l).replace('.',',')})); $('#fRendOn').checked=rend.length>0; renderRend(); $('#fPend').checked=!!r.pendente; $('#fPendTxt').value=r.pendenteTxt||''; pendUI(); $('#fSif').value=r.sif||''; $('#fMarca').value=r.marca||''; fotos=(r.fotos||[]).map(id=>({id})); renderFotos(); $('#fSku').value=r.sku||''; $('#fDataProd').value=r.dataProducao||''; $('#fDataAv').value=r.dataAvaliacao||''; $('#fPecas').value=r.pecas||10; $('#fObs').value=r.obs||'';
+ rend=(r.rend||[]).map(x=>{const o={}; for(const k in x) o[k]=String(x[k]).replace('.',','); return o;}); rendExtra=(r.rendCols||[]).map(e=>({...e})); $('#fRendOn').checked=rend.length>0; renderRend(); $('#fPend').checked=!!r.pendente; $('#fPendTxt').value=r.pendenteTxt||''; pendUI(); $('#fSif').value=r.sif||''; $('#fMarca').value=r.marca||''; fotos=(r.fotos||[]).map(id=>({id})); renderFotos(); $('#fSku').value=r.sku||''; $('#fDataProd').value=r.dataProducao||''; $('#fDataAv').value=r.dataAvaliacao||''; $('#fPecas').value=r.pecas||10; $('#fObs').value=r.obs||'';
  ncs={...(r.ncs||{})}; renderTasks(); $('#editTag').hidden=false; $('#btnSalvar').textContent='Salvar alterações'; $('#formMsg').textContent=''; location.hash='#lancar'; scrollTo(0,0);}
 async function delRow(id){const r=rows.find(x=>x.id===id); if(!r||!canEdit) return; if(!confirm(`Excluir o lançamento ${r.produtoNome} · ${r.frigorifico} ${r.sif||''} de ${fmtD(r.dataAvaliacao)}?`)) return;
  try{await api('excluir',{id}); lastVer=null; loadRows(true);}catch(e){alert('Não foi possível excluir ('+(e.code||e.message)+').');}}
@@ -760,17 +781,18 @@ $('#rdProduto').innerHTML='<option value="">Todos os cortes</option>'+PRODUTOS.m
 function renderRendTab(){ const R0=allRows().filter(r=>(r.rend||[]).length); const sel=$('#rdProduto').value; const L=sel?R0.filter(r=>r.produto===sel):R0; const el=$('#rendOut');
  if(!L.length){el.innerHTML='<div class="card empty">Nenhum rendimento lançado ainda. Na aba Lançar, marque "Lançar rendimento deste lote" e preencha os pesos de cada peça.</div>'; return;}
  const all=rsum(L.flatMap(r=>r.rend)), J=rsum(L.filter(r=>r.grupo==='JBS').flatMap(r=>r.rend)), C=rsum(L.filter(r=>r.grupo!=='JBS').flatMap(r=>r.rend));
- const comp=m=>m?`<div class="rd-comp" title="Líquido ${p1d(m.pl)} · Gordura ${p1d(m.pg)} · Sebo ${p1d(m.ps)} · Recorte ${p1d(m.pc)} · Diferença ${p1d(m.pd)}"><i class="rd-l" style="width:${Math.max(0,m.pl*100)}%"></i><i class="rd-g" style="width:${Math.max(0,m.pg*100)}%"></i><i class="rd-s" style="width:${Math.max(0,m.ps*100)}%"></i><i class="rd-r" style="width:${Math.max(0,m.pc*100)}%"></i><i class="rd-d" style="width:${Math.max(0,m.pd*100)}%"></i></div>`:'';
+ const XK=[...new Set(L.flatMap(r=>(r.rendCols||[]).map(c=>c.k)))];
+ const comp=m=>m?`<div class="rd-comp" title="Líquido ${p1d(m.pl)} · ${Object.entries(m.pp).map(([k,v])=>lblOf(k)+' '+p1d(v)).join(' · ')}"><i class="rd-l" style="width:${Math.max(0,m.pl*100)}%"></i>${Object.keys(m.pp).map(k=>`<i class="${RCLS[k]||''}" style="width:${Math.max(0,m.pp[k]*100)}%;${colOf(k,XK)}"></i>`).join('')}</div>`:'';
  let h=`<div class="grid g4">${[[all.n,'peças pesadas'],[L.length,'lotes com rendimento'],[p1d(all.pl),'rendimento médio geral'],[J?p1d(J.pl):'–',`rendimento JBS · ${J?J.n:0} peças`],[C?p1d(C.pl):'–',`rendimento concorrentes · ${C?C.n:0} peças`]].map(([b,t],i)=>`<div class="card kpi ${i===3?'hl':''}"><b>${esc(b)}</b><span>${esc(t)}</span></div>`).join('')}</div>
- <div class="rd-leg" style="margin:12px 0"><span><i class="rd-l"></i>Líquido (rendimento)</span><span><i class="rd-g"></i>Gordura</span><span><i class="rd-s"></i>Sebo</span><span><i class="rd-r"></i>Recorte</span><span><i class="rd-d"></i>Diferença</span></div>`;
- for(const p of PRODUTOS){ const PL=L.filter(r=>r.produto===p.id); if(!PL.length) continue; const G={}; PL.forEach(r=>{const k=(r.frigorifico||'').trim().toLowerCase()+'|'+r.sif; (G[k]=G[k]||[]).push(r);});
+ <div class="rd-leg" style="margin:12px 0"><span><i class="rd-l"></i>Líquido (rendimento)</span><span><i class="rd-g"></i>Gordura</span><span><i class="rd-s"></i>Sebo</span><span><i class="rd-r"></i>Recorte</span><span><i class="rd-x"></i>Sebo + tendinosas + coágulos + ác. lático</span>${XK.map(k=>`<span><i style="${colOf(k,XK)}"></i>${esc(lblOf(k))}</span>`).join('')}</div>`;
+ for(const p of PRODUTOS){ const PL=L.filter(r=>r.produto===p.id); if(!PL.length) continue; const PX=[...new Map(PL.flatMap(r=>r.rendCols||[]).map(c=>[c.k,c])).values()]; const PP=[...partsFor(p.fam),...PX.map(c=>[c.k,c.label,c.label])]; const G={}; PL.forEach(r=>{const k=(r.frigorifico||'').trim().toLowerCase()+'|'+r.sif; (G[k]=G[k]||[]).push(r);});
   const xs=Object.values(G).map(rs=>({rs,frig:rs[0].frigorifico,sif:rs[0].sif,jbs:rs[0].grupo==='JBS',m:rsum(rs.flatMap(r=>r.rend))})).sort((a,b)=>b.m.pl-a.m.pl);
   const pm=rsum(PL.flatMap(r=>r.rend)), pj=rsum(PL.filter(r=>r.grupo==='JBS').flatMap(r=>r.rend)), pc=rsum(PL.filter(r=>r.grupo!=='JBS').flatMap(r=>r.rend));
   h+=`<section class="rsec"><div class="top"><div><h3>${esc(p.nome)}</h3><span style="font-size:13px;color:var(--muted)">Família produto: ${esc(p.fam)} · ${pm.n} peças pesadas · bruto médio ${pm.mb.toFixed(2).replace('.',',')} kg</span></div>
    <div class="vs"><div class="j"><b>${pj?p1d(pj.pl):'–'}</b><span>JBS · ${pj?pj.n:0} pç</span></div><div class="c"><b>${pc?p1d(pc.pl):'–'}</b><span>Concorrentes · ${pc?pc.n:0} pç</span></div></div></div><div class="rbody">
-   <div>${xs.map((x,k)=>`<div class="rd-row"><span class="ov-pos">${k+1}</span><span class="ov-lg">${flogo(x.frig,20)}</span><span class="ov-nm"><b>${esc(x.frig)}</b> <em>SIF ${esc(x.sif)} · ${x.m.n} pç</em></span><span class="rd-big">${p1d(x.m.pl)}</span>${comp(x.m)}<span style="font-size:11px;color:var(--muted);text-align:right">G ${p1d(x.m.pg)} · S ${p1d(x.m.ps)}<br>R ${p1d(x.m.pc)} · D ${p1d(x.m.pd)}</span></div>`).join('')}</div>
-   <div class="tw"><table><thead><tr><th>Frigorífico/SIF</th><th>Produção</th><th class="num">Peças</th><th class="num">Bruto médio (kg)</th><th class="num">Rendimento</th><th class="num">Gordura</th><th class="num">Sebo</th><th class="num">Recorte</th><th class="num">Diferença</th></tr></thead><tbody>
-   ${PL.slice().sort((a,b)=>rsum(b.rend).pl-rsum(a.rend).pl).map(r=>{const m=rsum(r.rend); return `<tr><td>${flogo(r.frigorifico,16)}${esc(r.frigorifico)} ${esc(r.sif||'')}</td><td>${fmtD(r.dataProducao)}</td><td class="num">${m.n}</td><td class="num">${m.mb.toFixed(2).replace('.',',')}</td><td class="num"><b>${p1d(m.pl)}</b></td><td class="num">${p1d(m.pg)}</td><td class="num">${p1d(m.ps)}</td><td class="num">${p1d(m.pc)}</td><td class="num">${p1d(m.pd)}</td></tr>`;}).join('')}</tbody></table></div>
+   <div>${xs.map((x,k)=>`<div class="rd-row"><span class="ov-pos">${k+1}</span><span class="ov-lg">${flogo(x.frig,20)}</span><span class="ov-nm"><b>${esc(x.frig)}</b> <em>SIF ${esc(x.sif)} · ${x.m.n} pç</em></span><span class="rd-big">${p1d(x.m.pl)}</span>${comp(x.m)}<span style="font-size:11px;color:var(--muted);text-align:right">${PP.filter(q=>x.m.pp[q[0]]!==undefined).map(q=>`${esc(q[2])} ${p1d(x.m.pp[q[0]])}`).join('<br>')}</span></div>`).join('')}</div>
+   <div class="tw"><table><thead><tr><th>Frigorífico/SIF</th><th>Produção</th><th class="num">Peças</th><th class="num">Bruto médio (kg)</th><th class="num">Rendimento</th>${PP.map(q=>`<th class="num">${esc(q[1])}</th>`).join('')}</tr></thead><tbody>
+   ${PL.slice().sort((a,b)=>rsum(b.rend).pl-rsum(a.rend).pl).map(r=>{const m=rsum(r.rend); return `<tr><td>${flogo(r.frigorifico,16)}${esc(r.frigorifico)} ${esc(r.sif||'')}</td><td>${fmtD(r.dataProducao)}</td><td class="num">${m.n}</td><td class="num">${m.mb.toFixed(2).replace('.',',')}</td><td class="num"><b>${p1d(m.pl)}</b></td>${PP.map(q=>`<td class="num">${m.pp[q[0]]!==undefined?p1d(m.pp[q[0]]):'–'}</td>`).join('')}</tr>`;}).join('')}</tbody></table></div>
   </div></section>`; }
  el.innerHTML=h; }
 function renderAll(){ renderRendTab(); if(location.hash==='#relatorio') loadPastas();renderDash(); renderTable(); renderPend(); fillLists(); renderReport();}
