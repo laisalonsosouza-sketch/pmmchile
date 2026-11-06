@@ -118,7 +118,17 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .ov-list{padding:4px 12px 8px}
 .ov-pr{display:grid;grid-template-columns:44px minmax(0,1fr) 70px 40px 92px;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--soft);font-size:13px}
 .ov-pr:first-child{border-top:none}
-.ov-lg{display:flex;align-items:center;justify-content:center}.ov-lg .flogo{margin:0;max-width:44px;padding:1px 2px}
+.ov-lg{display:flex;align-items:center;justify-content:center}.ov-lg .rtab{width:100%;border-collapse:collapse;font-size:13px}.rtab th{background:var(--soft);color:var(--muted);font-weight:600;padding:6px;text-align:center;white-space:nowrap}
+.rtab td{padding:4px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap}.rtab input{width:78px;min-height:38px;padding:6px;text-align:right}
+.rtab td.rc,.rtab th.rc{font-variant-numeric:tabular-nums;min-width:58px}.rtab td.rc b{color:var(--navy)}.rtab td.neg{color:var(--red);font-weight:700}
+.rtab tfoot td{background:var(--green-soft);font-weight:700;color:var(--green-ink);padding:8px 4px}.rtab .rm{border:none;background:none;color:var(--muted);font-size:18px;cursor:pointer;width:32px;height:32px}
+.rd-comp{display:flex;height:16px;border-radius:8px;overflow:hidden;background:var(--soft)}.rd-comp i{display:block;height:100%}
+.rd-l{background:linear-gradient(90deg,#3AA615,#6EE63B)}.rd-g{background:#F2C94C}.rd-s{background:#F2994A}.rd-r{background:#9C8CF0}.rd-d{background:#C9C7D9}
+.rd-row{display:grid;grid-template-columns:22px 46px minmax(0,1.1fr) 70px minmax(120px,2.2fr) 78px;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--soft);font-size:13px}
+.rd-leg{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted)}.rd-leg i{display:inline-block;width:12px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.rd-big{font-size:18px;font-weight:700;color:var(--navy);text-align:right}
+@media (max-width:640px){.rd-row{grid-template-columns:20px 36px minmax(0,1fr) 60px}.rd-row .rd-comp{grid-column:2 / -1}.rtab input{width:64px}}
+.flogo{margin:0;max-width:44px;padding:1px 2px}
 .ov-ini{width:26px;height:26px;border-radius:50%;background:var(--soft);display:grid;place-items:center;font-size:10px;font-weight:700;color:var(--navy)}
 .ov-nm{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ov-nm b{color:var(--ink);font-weight:600}.ov-nm em{font-style:normal;color:var(--muted);font-size:12px}
 .ov-mini{height:8px;border-radius:5px;background:var(--soft);overflow:hidden}.ov-mini i{display:block;height:100%;border-radius:5px}
@@ -290,6 +300,7 @@ tr.pend td{background:#FFF8E1}
     <a href="#dashboard" data-v="dashboard">Dashboard</a>
     <a href="#lancamentos" data-v="lancamentos">Lançamentos<span class="tabbadge" id="pendBadge" hidden></span></a>
     <a href="#relatorio" data-v="relatorio">Relatório</a>
+    <a href="#rendimento" data-v="rendimento">Rendimento</a>
   </nav>
 </div></header>
 <main>
@@ -319,6 +330,14 @@ tr.pend td{background:#FFF8E1}
       <span class="nk" id="nkLive" hidden></span> <span class="pill" id="ncResumo">0 NC</span>
     </div>
     <div id="tarefas"></div>
+    <div class="card" style="margin-top:14px" id="rendCard">
+      <div class="row"><h3 style="margin:0">Rendimento</h3><span class="spacer"></span><label style="display:flex;gap:8px;align-items:center;font-weight:600;cursor:pointer"><input type="checkbox" id="fRendOn" style="width:20px;height:20px;min-height:0"> Lançar rendimento deste lote</label></div>
+      <div id="rendBox" hidden>
+        <p style="font-size:13px;color:var(--muted);margin:6px 0 10px">Pesos em kg (use vírgula ou ponto). Os percentuais são calculados sobre o peso bruto de cada peça.</p>
+        <div class="tw"><table class="rtab"><thead><tr><th>Peça</th><th>Bruto</th><th>Gordura</th><th>Sebo</th><th>Recorte</th><th>Líquido</th><th class="rc">Rend.</th><th class="rc">Gord.</th><th class="rc">Sebo</th><th class="rc">Rec.</th><th class="rc">Dif.</th><th></th></tr></thead><tbody id="rendRows"></tbody><tfoot id="rendFoot"></tfoot></table></div>
+        <div class="row" style="margin-top:8px"><button class="btn" type="button" id="rendAdd">+ Adicionar peça</button><span id="rendMsg" style="font-size:13px;color:var(--muted)"></span></div>
+      </div>
+    </div>
     <div class="card" style="margin-top:14px" id="fotosCard">
       <div class="row"><h3 style="margin:0">Fotos da avaliação</h3><span class="spacer"></span><span class="pill" id="fotosCount">0 fotos</span></div>
       <p style="font-size:13px;color:var(--muted);margin:6px 0 10px">Tire ou escolha fotos das peças, etiquetas e NCs. Elas ficam salvas junto com o lançamento.</p>
@@ -356,6 +375,14 @@ tr.pend td{background:#FFF8E1}
     </div>
     <div class="card" style="margin-top:12px"><h3>Mapa de calor · tarefas × frigorífico/SIF</h3><p style="font-size:12px;color:var(--muted);margin:-4px 0 10px">% = NCs da tarefa ÷ peças avaliadas do frigorífico/SIF · quanto mais escuro, pior · respeita o filtro de produto</p><div class="tw"><table class="heat" id="heat"></table></div></div>
     <div class="card" style="margin-top:12px"><h3>Tarefas com mais NCs</h3><p style="font-size:12px;color:var(--muted);margin:-4px 0 10px">top 12 · NCs ÷ peças avaliadas</p><div class="bars" id="topTar"></div></div>
+  </section>
+
+  <!-- RENDIMENTO -->
+  <section class="view" id="v-rendimento" aria-labelledby="h-rend">
+    <div class="row"><h2 id="h-rend" style="margin:0">Rendimento</h2><span class="spacer"></span>
+      <label class="f" style="flex-direction:row;align-items:center;gap:8px">Corte<select id="rdProduto" style="width:auto"></select></label></div>
+    <p style="font-size:13px;color:var(--muted);margin:6px 0 12px">Rendimento = peso líquido após o refile ÷ peso bruto. Gordura, sebo e recorte em % do bruto. Diferença = bruto − (líquido + gordura + sebo + recorte), em % do bruto. Médias do lote e do frigorífico/SIF ponderadas pelo peso.</p>
+    <div id="rendOut"></div>
   </section>
 
   <!-- RELATÓRIO -->
@@ -420,7 +447,7 @@ const prodById=id=>PRODUTOS.find(p=>p.id===id);
 let senha=null, canEdit=false, rows=[], editingId=null, ncs={};
 
 // ---------- navegação ----------
-function route(){const v=(location.hash||'#lancar').slice(1);const ok=['lancar','dashboard','lancamentos','relatorio'].includes(v)?v:'lancar';
+function route(){const v=(location.hash||'#lancar').slice(1);const ok=['lancar','dashboard','lancamentos','relatorio','rendimento'].includes(v)?v:'lancar';
  document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+ok));
  document.querySelectorAll('nav.tabs a').forEach(a=>a.setAttribute('aria-current',a.dataset.v===ok?'page':'false'));}
 addEventListener('hashchange',()=>{route(); if(location.hash==='#relatorio') loadPastas(true);});
@@ -459,13 +486,13 @@ async function flushFila(){ if(flushing||!canEdit||!navigator.onLine) return; fl
 addEventListener('online',()=>{flushFila(); loadRows(true);});
 // ===== rascunho automático =====
 const DKEY='pmmChileRascunho'; let draftT=null, restoring=false;
-function formState(){return {editingId,produto:fP.value,frig:fF.value,sif:$('#fSif').value,marca:$('#fMarca').value,sku:$('#fSku').value,dp:$('#fDataProd').value,da:$('#fDataAv').value,pecas:$('#fPecas').value,ncs:{...ncs},obs:$('#fObs').value,pend:$('#fPend').checked,pendTxt:$('#fPendTxt').value,fotos:fotos.map(f=>f.lid?{lid:f.lid}:{id:f.id}),t:Date.now()};}
-function hasContent(d){return d.frig||d.sif||d.dp||Object.keys(d.ncs||{}).length||d.obs||(d.fotos||[]).length;}
+function formState(){return {editingId,produto:fP.value,frig:fF.value,sif:$('#fSif').value,marca:$('#fMarca').value,sku:$('#fSku').value,dp:$('#fDataProd').value,da:$('#fDataAv').value,pecas:$('#fPecas').value,ncs:{...ncs},obs:$('#fObs').value,pend:$('#fPend').checked,pendTxt:$('#fPendTxt').value,fotos:fotos.map(f=>f.lid?{lid:f.lid}:{id:f.id}),rendOn:$('#fRendOn').checked,rend:rend.map(r=>({...r})),t:Date.now()};}
+function hasContent(d){return (d.rend||[]).some(r=>r.b)||d.frig||d.sif||d.dp||Object.keys(d.ncs||{}).length||d.obs||(d.fotos||[]).length;}
 function saveDraft(){ if(restoring) return; clearTimeout(draftT); draftT=setTimeout(()=>{try{const d=formState(); if(hasContent(d)) localStorage.setItem(DKEY,JSON.stringify(d)); else localStorage.removeItem(DKEY);}catch(_){}},400);}
 function clearDraft(){clearTimeout(draftT); try{localStorage.removeItem(DKEY);}catch(_){} $('#draftBar').innerHTML='';}
 async function restoreDraft(){ let d=null; try{d=JSON.parse(localStorage.getItem(DKEY)||'null');}catch(_){} if(!d||!hasContent(d)) return; restoring=true;
  editingId=d.editingId||null; fP.value=d.produto; onProduto(false); fF.value=d.frig||''; onFrig(); $('#fSif').value=d.sif||''; $('#fMarca').value=d.marca||''; $('#fSku').value=d.sku||''; $('#fDataProd').value=d.dp||''; $('#fDataAv').value=d.da||today; $('#fPecas').value=d.pecas||10; $('#fObs').value=d.obs||''; $('#fPend').checked=!!d.pend; $('#fPendTxt').value=d.pendTxt||''; pendUI();
- ncs={...(d.ncs||{})}; fotos=[]; for(const f of d.fotos||[]){ if(f.lid){const ph=await getL('fotos',f.lid).catch(()=>null); if(ph) fotos.push({lid:f.lid,url:'data:image/jpeg;base64,'+ph.data});} else fotos.push({id:f.id}); }
+ ncs={...(d.ncs||{})}; rend=(d.rend||[]).map(r=>({...r})); $('#fRendOn').checked=!!d.rendOn; renderRend(); fotos=[]; for(const f of d.fotos||[]){ if(f.lid){const ph=await getL('fotos',f.lid).catch(()=>null); if(ph) fotos.push({lid:f.lid,url:'data:image/jpeg;base64,'+ph.data});} else fotos.push({id:f.id}); }
  renderTasks(); renderFotos(); if(editingId){$('#editTag').hidden=false; $('#btnSalvar').textContent='Salvar alterações';}
  $('#draftBar').innerHTML=`<div class="draftbar">📝 Rascunho recuperado de ${new Date(d.t).toLocaleString('pt-BR')} <button type="button" id="dDiscard">descartar rascunho</button></div>`;
  $('#dDiscard').addEventListener('click',()=>{clearForm(); clearDraft();}); restoring=false; }
@@ -473,6 +500,27 @@ $('#v-lancar').addEventListener('input',saveDraft); $('#v-lancar').addEventListe
 // ===== duplicar =====
 function dupRow(id){const r=rows.find(x=>x.id===id); if(!r) return; clearForm(); fP.value=r.produto; onProduto(false); fF.value=r.frigorifico; onFrig(); $('#fSif').value=r.sif||''; $('#fMarca').value=r.marca||''; $('#fSku').value=r.sku||''; $('#fPecas').value=r.pecas||10; $('#fDataAv').value=today;
  $('#formMsg').textContent=`Duplicado de ${r.produtoNome} · ${r.frigorifico} ${r.sif||''}. Preencha a data de produção, as NCs e as fotos.`; location.hash='#lancar'; scrollTo(0,0); $('#fDataProd').focus(); saveDraft();}
+// ===== rendimento =====
+let rend=[];
+const num=v=>{const n=parseFloat(String(v??'').replace(',','.')); return isFinite(n)?n:0;};
+const p1d=x=>!isFinite(x)?'–':(x*100).toFixed(1).replace('.',',')+'%';
+function rcalc(r){const b=num(r.b),g=num(r.g),s_=num(r.s),c=num(r.r),l=num(r.l); if(!b) return null; const d=b-(g+s_+c+l); return {b,l,g,s:s_,c,d,pl:l/b,pg:g/b,ps:s_/b,pc:c/b,pd:d/b};}
+function rsum(list){const v=list.map(rcalc).filter(Boolean); if(!v.length) return null; const S=k=>v.reduce((a,x)=>a+x[k],0); const B=S('b');
+ return {n:v.length,B,pl:S('l')/B,pg:S('g')/B,ps:S('s')/B,pc:S('c')/B,pd:S('d')/B,mb:B/v.length};}
+function renderRend(){ const on=$('#fRendOn').checked; $('#rendBox').hidden=!on; if(!on) return;
+ $('#rendRows').innerHTML=rend.map((r,i)=>{const c=rcalc(r); return `<tr><td><b>${i+1}</b></td>${['b','g','s','r','l'].map(k=>`<td><input inputmode="decimal" data-ri="${i}" data-rk="${k}" value="${esc(r[k]??'')}" aria-label="Peça ${i+1} ${({b:'bruto',g:'gordura',s:'sebo',r:'recorte',l:'líquido'})[k]}"></td>`).join('')}
+  <td class="rc"><b>${c?p1d(c.pl):'–'}</b></td><td class="rc">${c?p1d(c.pg):'–'}</td><td class="rc">${c?p1d(c.ps):'–'}</td><td class="rc">${c?p1d(c.pc):'–'}</td><td class="rc ${c&&c.d<-0.0005?'neg':''}">${c?p1d(c.pd):'–'}</td><td><button type="button" class="rm" data-rrm="${i}" aria-label="Remover peça ${i+1}">×</button></td></tr>`;}).join('');
+ updRendFoot(); }
+function updRendFoot(){ const m=rsum(rend); $('#rendFoot').innerHTML=m?`<tr><td colspan="6" style="text-align:right">Média do lote (${m.n} peça${m.n>1?'s':''} · bruto médio ${m.mb.toFixed(2).replace('.',',')} kg)</td><td class="rc">${p1d(m.pl)}</td><td class="rc">${p1d(m.pg)}</td><td class="rc">${p1d(m.ps)}</td><td class="rc">${p1d(m.pc)}</td><td class="rc">${p1d(m.pd)}</td><td></td></tr>`:'';
+ const neg=rend.map(rcalc).some(c=>c&&c.d<-0.0005); $('#rendMsg').textContent=neg?'⚠ Há peça em que a soma das partes passa do peso bruto: confira os pesos.':''; }
+function ensureRendRows(){const n=Math.max(1,parseInt($('#fPecas').value,10)||10); while(rend.length<n) rend.push({b:'',g:'',s:'',r:'',l:''});}
+$('#fRendOn').addEventListener('change',()=>{ if($('#fRendOn').checked&&!rend.length) ensureRendRows(); renderRend(); saveDraft&&saveDraft(); });
+$('#rendAdd').addEventListener('click',()=>{rend.push({b:'',g:'',s:'',r:'',l:''}); renderRend(); const ins=$('#rendRows').querySelectorAll('tr:last-child input'); if(ins[0]) ins[0].focus();});
+$('#rendRows').addEventListener('input',e=>{const t=e.target.closest('[data-rk]'); if(!t) return; rend[+t.dataset.ri][t.dataset.rk]=t.value;
+ const tr=t.closest('tr'), c=rcalc(rend[+t.dataset.ri]); const cells=tr.querySelectorAll('td.rc'); const vals=c?[`<b>${p1d(c.pl)}</b>`,p1d(c.pg),p1d(c.ps),p1d(c.pc),p1d(c.pd)]:['–','–','–','–','–'];
+ cells.forEach((td,i)=>td.innerHTML=vals[i]); cells[4].classList.toggle('neg',!!(c&&c.d<-0.0005)); updRendFoot();});
+$('#rendRows').addEventListener('click',e=>{const b=e.target.closest('[data-rrm]'); if(!b) return; rend.splice(+b.dataset.rrm,1); renderRend(); saveDraft();});
+function rendClean(){return rend.filter(r=>num(r.b)>0).map(r=>({b:num(r.b),g:num(r.g),s:num(r.s),r:num(r.r),l:num(r.l)}));}
 function renderFotos(){ $('#thumbs').innerHTML=fotos.map((f,i)=>`<div class="thumb"><a href="${f.url||fotoUrl(f.id)}" target="_blank" rel="noopener"><img src="${f.url||fotoUrl(f.id)}" alt="Foto ${i+1} da avaliação"></a><button type="button" data-rm="${i}" aria-label="Remover foto ${i+1}">×</button></div>`).join('')+Array.from({length:uploading},()=>'<div class="thumb"><span class="up">enviando…</span></div>').join('');
  $('#fotosCount').textContent=`${fotos.length} foto${fotos.length===1?'':'s'}`; $('#btnSalvar').disabled=!canEdit||uploading>0;}
 $('#thumbs').addEventListener('click',e=>{const b=e.target.closest('[data-rm]'); if(!b) return; const f=fotos.splice(+b.dataset.rm,1)[0]; if(f&&f.lid) delL('fotos',f.lid).catch(()=>{}); renderFotos(); saveDraft();});
@@ -515,7 +563,7 @@ function updGroupCounts(){document.querySelectorAll('details.grp').forEach(d=>{c
  d.querySelector('.cnt').textContent=`${ts.reduce((s,t)=>s+(ncs[key(g,t)]||0),0)} NC · ${ts.length} tarefas`;});}
 function updResumo(){ const nk=nocaute({ncs}); const el=$('#nkLive'); el.hidden=!Object.keys(ncs).length; el.className='nk '+(nk.rep?'rep':'ok'); el.textContent=nk.rep?'🚫 Reprovaria':'✓ Aprovaria'; el.title=nk.rep?nk.motivo:'Nenhuma regra de nocaute atingida';const n=Object.values(ncs).reduce((a,b)=>a+b,0), p=+$('#fPecas').value||0; $('#ncResumo').textContent=`${n} NC · índice ${p?pct(n/p):'–'}`;}
 $('#fBusca').addEventListener('input',renderTasks); $('#fPecas').addEventListener('input',updResumo);
-function clearForm(){editingId=null; ncs={}; ['#fFrig','#fSif','#fMarca','#fSku','#fDataProd','#fObs','#fBusca'].forEach(s=>$(s).value=''); fotos=[]; renderFotos(); $('#fPend').checked=false; $('#fPendTxt').value=''; pendUI(); $('#fPecas').value=10; $('#fDataAv').value=today; $('#editTag').hidden=true; $('#btnSalvar').textContent='Salvar lançamento'; renderTasks();}
+function clearForm(){editingId=null; ncs={}; ['#fFrig','#fSif','#fMarca','#fSku','#fDataProd','#fObs','#fBusca'].forEach(s=>$(s).value=''); fotos=[]; renderFotos(); rend=[]; $('#fRendOn').checked=false; renderRend(); $('#fPend').checked=false; $('#fPendTxt').value=''; pendUI(); $('#fPecas').value=10; $('#fDataAv').value=today; $('#editTag').hidden=true; $('#btnSalvar').textContent='Salvar lançamento'; renderTasks();}
 $('#btnLimpar').addEventListener('click',()=>{fotos.forEach(f=>{if(f.lid) delL('fotos',f.lid).catch(()=>{});}); clearForm(); clearDraft(); $('#formMsg').textContent='';});
 $('#btnSalvar').addEventListener('click',async()=>{
  const msg=$('#formMsg'); if(!canEdit){msg.textContent='Entre com a senha para salvar.'; openLogin(); return;}
@@ -527,7 +575,7 @@ $('#btnSalvar').addEventListener('click',async()=>{
  const dup=rows.find(r=>r.id!==editingId&&r.produto===p.id&&(r.frigorifico||'').toLowerCase()===frig.toLowerCase()&&r.sif===sif&&r.dataProducao===dp);
  if(dup&&!confirm(`Já existe um lançamento de ${p.nome} · ${frig} ${sif} com produção em ${fmtD(dp)}. Salvar mesmo assim como outro lançamento?`)){msg.textContent='Não salvo.'; return;}
  const over=Object.entries(ncs).find(([,v])=>v>pec); if(over){msg.textContent=`"${over[0].split('|')[1]}" tem mais NCs que peças avaliadas.`; return;}
- const doc={produto:p.id,produtoNome:p.nome,familia:p.fam,frigorifico:frig,grupo:isJBS(frig)?'JBS':'Concorrente',sif,sku:$('#fSku').value.trim(),marca:$('#fMarca').value.trim(),fotos:fotos.filter(f=>f.id).map(f=>f.id),dataProducao:dp,dataAvaliacao:da,pecas:pec,ncs:{...ncs},obs:$('#fObs').value.trim(),pendente:$('#fPend').checked,pendenteTxt:$('#fPend').checked?$('#fPendTxt').value.trim():'',atualizadoEm:new Date().toISOString()};
+ const doc={produto:p.id,produtoNome:p.nome,familia:p.fam,frigorifico:frig,grupo:isJBS(frig)?'JBS':'Concorrente',sif,sku:$('#fSku').value.trim(),marca:$('#fMarca').value.trim(),fotos:fotos.filter(f=>f.id).map(f=>f.id),dataProducao:dp,dataAvaliacao:da,pecas:pec,ncs:{...ncs},obs:$('#fObs').value.trim(),rend:$('#fRendOn').checked?rendClean():[],pendente:$('#fPend').checked,pendenteTxt:$('#fPend').checked?$('#fPendTxt').value.trim():'',atualizadoEm:new Date().toISOString()};
  const btn=$('#btnSalvar'); btn.disabled=true; msg.textContent='Salvando…';
  const lids=fotos.filter(f=>f.lid).map(f=>f.lid); if(editingId){const old=rows.find(r=>r.id===editingId); doc.criadoEm=old?.criadoEm||doc.atualizadoEm;} else doc.criadoEm=doc.atualizadoEm;
  const enqueue=async()=>{await putL('fila',{qid:new Date().toISOString()+Math.random().toString(36).slice(2,6),editingId,doc,lids}); await updFila();};
@@ -538,7 +586,7 @@ $('#btnSalvar').addEventListener('click',async()=>{
  }catch(e){msg.textContent='Não foi possível salvar ('+(e.code||e.message||'erro')+').';}
  finally{btn.disabled=false;}});
 function editRow(id){const r=rows.find(x=>x.id===id); if(!r) return; editingId=id; fP.value=r.produto; onProduto(false); fF.value=r.frigorifico; onFrig();
- $('#fPend').checked=!!r.pendente; $('#fPendTxt').value=r.pendenteTxt||''; pendUI(); $('#fSif').value=r.sif||''; $('#fMarca').value=r.marca||''; fotos=(r.fotos||[]).map(id=>({id})); renderFotos(); $('#fSku').value=r.sku||''; $('#fDataProd').value=r.dataProducao||''; $('#fDataAv').value=r.dataAvaliacao||''; $('#fPecas').value=r.pecas||10; $('#fObs').value=r.obs||'';
+ rend=(r.rend||[]).map(x=>({b:String(x.b).replace('.',','),g:String(x.g).replace('.',','),s:String(x.s).replace('.',','),r:String(x.r).replace('.',','),l:String(x.l).replace('.',',')})); $('#fRendOn').checked=rend.length>0; renderRend(); $('#fPend').checked=!!r.pendente; $('#fPendTxt').value=r.pendenteTxt||''; pendUI(); $('#fSif').value=r.sif||''; $('#fMarca').value=r.marca||''; fotos=(r.fotos||[]).map(id=>({id})); renderFotos(); $('#fSku').value=r.sku||''; $('#fDataProd').value=r.dataProducao||''; $('#fDataAv').value=r.dataAvaliacao||''; $('#fPecas').value=r.pecas||10; $('#fObs').value=r.obs||'';
  ncs={...(r.ncs||{})}; renderTasks(); $('#editTag').hidden=false; $('#btnSalvar').textContent='Salvar alterações'; $('#formMsg').textContent=''; location.hash='#lancar'; scrollTo(0,0);}
 async function delRow(id){const r=rows.find(x=>x.id===id); if(!r||!canEdit) return; if(!confirm(`Excluir o lançamento ${r.produtoNome} · ${r.frigorifico} ${r.sif||''} de ${fmtD(r.dataAvaliacao)}?`)) return;
  try{await api('excluir',{id}); lastVer=null; loadRows(true);}catch(e){alert('Não foi possível excluir ('+(e.code||e.message)+').');}}
@@ -708,7 +756,24 @@ async function zipDown(btn,fotos,nome,nivel){ if(!canEdit){openLogin(); return;}
  try{ const r=await api('zip',{itens,nome:safe(nome)}); btn.disabled=false; btn.textContent=txt; showZip(r.url,nome,itens.length); }
  catch(err){ btn.disabled=false; btn.textContent=txt; alert(err.code==='acao_desconhecida'?'O Apps Script ainda não tem a função de zip. Atualize o código do script e implante uma nova versão.':'Não foi possível gerar o zip ('+(err.code||err.message)+'). Se forem muitas fotos, tente por corte ou por frigorífico/SIF.'); } }
 function allRows(){return [...rows.filter(r=>!FILA.some(q=>q.editingId===r.id)),...FILA.map(q=>({...q.doc,id:q.editingId||('fila-'+q.qid),_fila:true,fotos:q.doc.fotos||[]}))];}
-function renderAll(){ if(location.hash==='#relatorio') loadPastas();renderDash(); renderTable(); renderPend(); fillLists(); renderReport();}
+$('#rdProduto').innerHTML='<option value="">Todos os cortes</option>'+PRODUTOS.map(p=>`<option value="${p.id}">${esc(p.nome)}</option>`).join(''); $('#rdProduto').addEventListener('change',()=>renderRendTab());
+function renderRendTab(){ const R0=allRows().filter(r=>(r.rend||[]).length); const sel=$('#rdProduto').value; const L=sel?R0.filter(r=>r.produto===sel):R0; const el=$('#rendOut');
+ if(!L.length){el.innerHTML='<div class="card empty">Nenhum rendimento lançado ainda. Na aba Lançar, marque "Lançar rendimento deste lote" e preencha os pesos de cada peça.</div>'; return;}
+ const all=rsum(L.flatMap(r=>r.rend)), J=rsum(L.filter(r=>r.grupo==='JBS').flatMap(r=>r.rend)), C=rsum(L.filter(r=>r.grupo!=='JBS').flatMap(r=>r.rend));
+ const comp=m=>m?`<div class="rd-comp" title="Líquido ${p1d(m.pl)} · Gordura ${p1d(m.pg)} · Sebo ${p1d(m.ps)} · Recorte ${p1d(m.pc)} · Diferença ${p1d(m.pd)}"><i class="rd-l" style="width:${Math.max(0,m.pl*100)}%"></i><i class="rd-g" style="width:${Math.max(0,m.pg*100)}%"></i><i class="rd-s" style="width:${Math.max(0,m.ps*100)}%"></i><i class="rd-r" style="width:${Math.max(0,m.pc*100)}%"></i><i class="rd-d" style="width:${Math.max(0,m.pd*100)}%"></i></div>`:'';
+ let h=`<div class="grid g4">${[[all.n,'peças pesadas'],[L.length,'lotes com rendimento'],[p1d(all.pl),'rendimento médio geral'],[J?p1d(J.pl):'–',`rendimento JBS · ${J?J.n:0} peças`],[C?p1d(C.pl):'–',`rendimento concorrentes · ${C?C.n:0} peças`]].map(([b,t],i)=>`<div class="card kpi ${i===3?'hl':''}"><b>${esc(b)}</b><span>${esc(t)}</span></div>`).join('')}</div>
+ <div class="rd-leg" style="margin:12px 0"><span><i class="rd-l"></i>Líquido (rendimento)</span><span><i class="rd-g"></i>Gordura</span><span><i class="rd-s"></i>Sebo</span><span><i class="rd-r"></i>Recorte</span><span><i class="rd-d"></i>Diferença</span></div>`;
+ for(const p of PRODUTOS){ const PL=L.filter(r=>r.produto===p.id); if(!PL.length) continue; const G={}; PL.forEach(r=>{const k=(r.frigorifico||'').trim().toLowerCase()+'|'+r.sif; (G[k]=G[k]||[]).push(r);});
+  const xs=Object.values(G).map(rs=>({rs,frig:rs[0].frigorifico,sif:rs[0].sif,jbs:rs[0].grupo==='JBS',m:rsum(rs.flatMap(r=>r.rend))})).sort((a,b)=>b.m.pl-a.m.pl);
+  const pm=rsum(PL.flatMap(r=>r.rend)), pj=rsum(PL.filter(r=>r.grupo==='JBS').flatMap(r=>r.rend)), pc=rsum(PL.filter(r=>r.grupo!=='JBS').flatMap(r=>r.rend));
+  h+=`<section class="rsec"><div class="top"><div><h3>${esc(p.nome)}</h3><span style="font-size:13px;color:var(--muted)">Família produto: ${esc(p.fam)} · ${pm.n} peças pesadas · bruto médio ${pm.mb.toFixed(2).replace('.',',')} kg</span></div>
+   <div class="vs"><div class="j"><b>${pj?p1d(pj.pl):'–'}</b><span>JBS · ${pj?pj.n:0} pç</span></div><div class="c"><b>${pc?p1d(pc.pl):'–'}</b><span>Concorrentes · ${pc?pc.n:0} pç</span></div></div></div><div class="rbody">
+   <div>${xs.map((x,k)=>`<div class="rd-row"><span class="ov-pos">${k+1}</span><span class="ov-lg">${flogo(x.frig,20)}</span><span class="ov-nm"><b>${esc(x.frig)}</b> <em>SIF ${esc(x.sif)} · ${x.m.n} pç</em></span><span class="rd-big">${p1d(x.m.pl)}</span>${comp(x.m)}<span style="font-size:11px;color:var(--muted);text-align:right">G ${p1d(x.m.pg)} · S ${p1d(x.m.ps)}<br>R ${p1d(x.m.pc)} · D ${p1d(x.m.pd)}</span></div>`).join('')}</div>
+   <div class="tw"><table><thead><tr><th>Frigorífico/SIF</th><th>Produção</th><th class="num">Peças</th><th class="num">Bruto médio (kg)</th><th class="num">Rendimento</th><th class="num">Gordura</th><th class="num">Sebo</th><th class="num">Recorte</th><th class="num">Diferença</th></tr></thead><tbody>
+   ${PL.slice().sort((a,b)=>rsum(b.rend).pl-rsum(a.rend).pl).map(r=>{const m=rsum(r.rend); return `<tr><td>${flogo(r.frigorifico,16)}${esc(r.frigorifico)} ${esc(r.sif||'')}</td><td>${fmtD(r.dataProducao)}</td><td class="num">${m.n}</td><td class="num">${m.mb.toFixed(2).replace('.',',')}</td><td class="num"><b>${p1d(m.pl)}</b></td><td class="num">${p1d(m.pg)}</td><td class="num">${p1d(m.ps)}</td><td class="num">${p1d(m.pc)}</td><td class="num">${p1d(m.pd)}</td></tr>`;}).join('')}</tbody></table></div>
+  </div></section>`; }
+ el.innerHTML=h; }
+function renderAll(){ renderRendTab(); if(location.hash==='#relatorio') loadPastas();renderDash(); renderTable(); renderPend(); fillLists(); renderReport();}
 
 // ---------- conexão ----------
 function setStatus(cls,t){$('#dot').className='dot '+cls; $('#statusTxt').textContent=t;}
